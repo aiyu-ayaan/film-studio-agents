@@ -30,3 +30,4 @@ projects/*/scenes/*/AGENTS.md
 projects/*/scenes/*/CLAUDE.md
 projects/*/scenes/*/package-lock.json
 projects/*/scenes/*/*.events.json
+!docs/launch.mp4

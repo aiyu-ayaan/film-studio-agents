@@ -4,6 +4,14 @@ A video studio run by AI coding agents (Claude Code and any tool that reads `AGE
 
 Ask for a film; the `film-studio` skill writes the story, voices it, builds each scene with the best-fitting video skill, mixes the sound, adds captions and checks the result.
 
+## Demo
+
+The studio launch film, made by the studio itself (47 s, vertical, narrated, captioned):
+
+[![Studio launch film](docs/launch-poster.jpg)](docs/launch.mp4)
+
+[Watch `docs/launch.mp4`](docs/launch.mp4) (720p copy; the full-quality master stays local at `projects/2026-11-20-studio-launch/renders/final.mp4`).
+
 ## Quick start
 
 ```bash
