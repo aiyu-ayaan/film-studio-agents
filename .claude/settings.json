@@ -1,0 +1,8 @@
+{
+  "enabledPlugins": {
+    "linkedin-skills@linkedin-skills": false,
+    "material-3@material-3-skill": false,
+    "rust-analyzer-lsp@claude-plugins-official": false,
+    "brag@brag": false
+  }
+}
