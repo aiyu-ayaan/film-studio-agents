@@ -1,0 +1,32 @@
+# environments and deps
+.venv/
+node_modules/
+__pycache__/
+# generated media: rebuildable from plan.json + scene sources
+projects/*/renders/
+projects/*/build/
+projects/*/audio/
+projects/*/scenes/*/clip.mp4
+projects/*/scenes/*/*.mp4
+projects/*/scenes/*/frames/
+projects/*/scenes/*/.cache/
+*.wav
+*.mp3
+*.mp4
+*.mov
+.clean/
+# local machine state
+.claude/settings.local.json
+.DS_Store
+# per-scene generated or vendored files (copied in by the skills, re-creatable)
+projects/*/scenes/*/film/runtime/
+projects/*/scenes/*/film/stills/
+projects/*/scenes/*/.hyperframes/
+projects/*/scenes/*/gsap.min.js
+projects/*/scenes/*/.git/
+projects/*/scenes/*/.remotion/
+projects/*/scenes/*/out/
+projects/*/scenes/*/AGENTS.md
+projects/*/scenes/*/CLAUDE.md
+projects/*/scenes/*/package-lock.json
+projects/*/scenes/*/*.events.json
