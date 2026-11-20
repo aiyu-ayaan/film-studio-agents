@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>s1 hook</title>
+<meta name="viewport" content="width=1440, height=2560">
+<link rel="stylesheet" href="./runtime/fonts.css">
+<style>
+/* ACCENT = amber: the result (the film, the code that holds it) */
+:root {
+  --ink: #0B0F1A; --lift: #141A2B; --paper: #F4EFE6; --amber: #FFB547; --cyan: #5EE6FF;
+  --display: "Montserrat", sans-serif; --mono: "FiraCode Nerd Font", monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1440px; height: 2560px; overflow: hidden; background: var(--ink); }
+#main { position: absolute; left: 0; top: 0; width: 1440px; height: 2560px; overflow: hidden; background: var(--ink); color: var(--paper); }
+
+/* ground: ink surface with a moving radial light pool */
+#pool { position: absolute; left: -560px; top: 0; width: 2560px; height: 2560px;
+  background: radial-gradient(closest-side, #1a2236 0%, var(--lift) 38%, rgba(20,26,43,0) 100%); }
+#flash { position: absolute; left: -280px; top: 380px; width: 2000px; height: 1400px; opacity: 0;
+  background: radial-gradient(closest-side, rgba(255,226,176,.22), rgba(255,181,71,0) 100%); }
+#vign { position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 45%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%); }
+
+.full { position: absolute; left: 0; top: 0; width: 1440px; height: 2560px; }
+.hero { position: absolute; left: 0; width: 1440px; top: 760px; height: 640px; text-align: center;
+  font-family: var(--display); font-weight: 900; letter-spacing: -0.03em; font-size: 236px; line-height: 300px; white-space: pre; }
+/* light sweep: gradient clipped to the letters, position driven by --sx */
+.lit { color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(100deg, var(--paper) 0%, var(--paper) 42%, #ffffff 49%, #ffe3b8 51%, var(--paper) 58%, var(--paper) 100%);
+  background-size: 300% 100%; background-position: var(--sx, 100%) 0; }
+.piece { position: absolute; inset: 0; }
+#pTop { clip-path: polygon(0 0, 100% 0, 100% 63%, 82% 71%, 66% 60%, 49% 73%, 33% 59%, 17% 70%, 0 62%); }
+#pBot { clip-path: polygon(0 62%, 17% 70%, 33% 59%, 49% 73%, 66% 60%, 82% 71%, 100% 63%, 100% 100%, 0 100%); }
+#heroShadow { filter: drop-shadow(0 30px 40px rgba(0,0,0,.6)); }
+#crack { position: absolute; left: 0; top: 760px; width: 1440px; height: 640px; overflow: visible; }
+#crackGlow { position: absolute; left: 0; top: 1020px; width: 1440px; height: 200px; opacity: 0;
+  background: radial-gradient(50% 50% at 50% 50%, rgba(255,181,71,.55), rgba(255,181,71,0)); }
+
+.amberLit { color: transparent; -webkit-background-clip: text; background-clip: text;
+  background-image: linear-gradient(100deg, var(--amber) 0%, var(--amber) 42%, #fff1d6 50%, var(--amber) 58%, var(--amber) 100%);
+  background-size: 300% 100%; background-position: var(--sx2, 100%) 0; }
+#filmTxt { filter: drop-shadow(0 0 60px rgba(255,181,71,.25)) drop-shadow(0 28px 36px rgba(0,0,0,.55)); }
+
+/* glyph row */
+.g { position: absolute; top: 1270px; width: 300px; height: 300px; margin-left: -150px; }
+.g svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 22px 26px rgba(0,0,0,.55)); }
+#row { transform-origin: 720px 1420px; }
+.brace { position: absolute; top: 1110px; height: 620px; width: 300px; margin-left: -150px; text-align: center;
+  font-family: var(--mono); font-weight: 700; font-size: 520px; line-height: 620px; }
+</style>
+</head>
+<body>
+<div id="main">
+  <div id="pool"></div>
+  <div id="flash"></div>
+
+  <!-- ONE PROMPT. : crash wrapper > drift wrapper > two clipped copies -->
+  <div id="pCrash" class="full"><div id="pDrift" class="full"><div id="heroShadow" class="full">
+    <div class="hero"><div id="pTop" class="piece lit">ONE
+PROMPT.</div><div id="pBot" class="piece lit">ONE
+PROMPT.</div></div>
+  </div></div></div>
+  <div id="crackGlow"></div>
+  <svg id="crack" viewBox="0 0 1440 640" preserveAspectRatio="none">
+    <polyline id="crackLine" points="0,397 245,448 475,378 706,467 950,384 1181,454 1440,403"
+      fill="none" stroke="#FFB547" stroke-width="7" stroke-linejoin="miter" stroke-dasharray="1700" stroke-dashoffset="1700"/>
+  </svg>
+
+  <!-- ONE FILM. -->
+  <div id="fMove" class="full"><div id="fIn" class="full">
+    <div class="hero amberLit" id="filmTxt">ONE
+FILM.</div>
+  </div></div>
+
+  <!-- glyphs: film frame, waveform, note; then { } -->
+  <div id="row" class="full">
+    <div id="g1w" class="full"><div id="g1" class="g" style="left:380px"><svg viewBox="0 0 260 260">
+      <rect x="22" y="36" width="216" height="188" rx="14" fill="#141A2B" stroke="#F4EFE6" stroke-width="14"/>
+      <rect x="62" y="80" width="136" height="100" rx="6" fill="#F4EFE6" opacity=".14"/>
+      <path d="M112 102 L156 130 L112 158 Z" fill="#FFB547"/>
+      <g fill="#F4EFE6"><rect x="40" y="52" width="10" height="16" rx="3"/><rect x="40" y="88" width="10" height="16" rx="3"/><rect x="40" y="124" width="10" height="16" rx="3"/><rect x="40" y="160" width="10" height="16" rx="3"/><rect x="40" y="194" width="10" height="16" rx="3"/>
+      <rect x="210" y="52" width="10" height="16" rx="3"/><rect x="210" y="88" width="10" height="16" rx="3"/><rect x="210" y="124" width="10" height="16" rx="3"/><rect x="210" y="160" width="10" height="16" rx="3"/><rect x="210" y="194" width="10" height="16" rx="3"/></g>
+    </svg></div></div>
+    <div id="g2w" class="full"><div id="g2" class="g" style="left:720px"><svg viewBox="0 0 260 260" id="wave"></svg></div></div>
+    <div id="g3w" class="full"><div id="g3" class="g" style="left:1060px"><svg viewBox="0 0 260 260">
+      <rect x="132" y="44" width="16" height="160" rx="4" fill="#F4EFE6"/>
+      <path d="M140 44 C150 74 206 84 212 140 C196 116 170 108 148 106 Z" fill="#F4EFE6"/>
+      <ellipse cx="104" cy="204" rx="48" ry="35" transform="rotate(-22 104 204)" fill="#F4EFE6"/>
+    </svg></div></div>
+  </div>
+  <div id="bL" class="brace amberLit" style="left:200px">{</div>
+  <div id="bR" class="brace amberLit" style="left:1240px">}</div>
+
+  <div id="vign"></div>
+</div>
+
+<script src="./runtime/vendor/gsap.min.js"></script>
+<script src="./runtime/motion.js"></script>
+<script>
+const M = Motion.film({ fps: 30, duration: 7.67, width: 1440, height: 2560, clock: 'smooth' });
+const END = 230;
+
+// waveform bars (deterministic pseudo-random heights)
+const wave = document.getElementById('wave');
+const NB = 9, bars = [];
+for (let i = 0; i < NB; i++) {
+  const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+  const x = 18 + i * 26;
+  r.setAttribute('x', x); r.setAttribute('y', 30); r.setAttribute('width', 16); r.setAttribute('height', 200); r.setAttribute('rx', 8);
+  r.setAttribute('fill', '#5EE6FF'); r.id = 'wb' + i;
+  r.style.transformBox = 'fill-box'; r.style.transformOrigin = '50% 50%';
+  wave.appendChild(r); bars.push(r);
+}
+const rnd = (i, k) => { const s = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return s - Math.floor(s); };
+const env = i => 1 - Math.abs(i - 4) / 6;
+bars.forEach((b, i) => {
+  const keys = [];
+  for (let f = 0, k = 0; f <= END; f += 3, k++) keys.push([f, Math.max(.12, (.25 + .75 * rnd(i, k)) * env(i)), 'softInOut']);
+  keys[0].length = 2;
+  M.kf(b, 'scaleY', keys);
+});
+
+// ground life: pool drifts the whole shot, flashes on each landing
+M.kf('#pool', 'x', [[0, -60], [END, 70]]);
+M.kf('#pool', 'y', [[0, -120], [END, 60]]);
+M.kf('#flash', 'opacity', [[0, 0], [12, 0], [14, 1, 'cruise'], [40, .25, 'softLand'], [72, .25], [84, 1, 'softLand'], [110, .2, 'glide'], [204, .2], [207, .8, 'cruise'], [230, .35, 'softLand']]);
+
+// BEAT 1: ONE PROMPT. crashes in from ~3x (already moving on frame 0), lands on the ink at f14
+M.kf('#pCrash', 'scale', [[0, 2.7], [14, 1, 'snapSettle']]);
+M.kf('#pCrash', 'y', [[0, -140], [14, 0, 'snapSettle']]);
+M.kf('#pDrift', 'scale', [[0, 1], [14, 1], [66, 1.045]]);              // living hold
+M.kf('#main', '--sx', [[0, 100], [18, 100], [62, 0, 'softInOut']], { fmt: v => v + '%' });   // light sweep across the letters
+M.mark(14, 'press', 'ONE PROMPT lands');
+
+// crack: line draws through PROMPT., the halves shiver, then split apart
+M.kf('#crackLine', 'stroke-dashoffset', [[0, 1700], [62, 1700], [67, 0, 'softLand']]);
+M.kf('#crackGlow', 'opacity', [[0, 0], [62, 0], [67, 1, 'softLand'], [80, .3], [88, 0, 'accelExit']]);
+M.kf('#crackGlow', 'scaleY', [[0, .4], [62, .4], [74, 2.4, 'softLand']]);
+M.kf('#pTop', 'x', [[0, 0], [64, 0], [65, -8], [66, 6], [67, -4], [68, 0]]);
+M.kf('#pBot', 'x', [[0, 0], [64, 0], [65, 8], [66, -6], [67, 4], [68, 0]]);
+M.kf('#pTop', 'y', [[0, 0], [68, 0], [69, -14], [82, -1500, 'accelExit']]);
+M.kf('#pTop', 'rotation', [[0, 0], [68, 0], [82, -9, 'accelExit']]);
+M.kf('#pBot', 'y', [[0, 0], [68, 0], [69, 14], [82, 1700, 'accelExit']]);
+M.kf('#pBot', 'rotation', [[0, 0], [68, 0], [82, 7, 'accelExit']]);
+M.kf('#crack', 'scaleX', [[0, 1], [70, 1], [80, 1.6, 'accelExit']]);
+M.kf('#crack', 'opacity', [[0, 1], [74, 1], [80, 0]]);
+M.hide('#pCrash', 83);
+M.mark(64, 'cut', 'crack');
+
+// BEAT 2: ONE FILM. lands in amber out of the crack (from oversize)
+M.enter('#fIn', { at: 70, frames: 18, ease: 'snapSettle', from: { scale: 2.3, y: 60 } });
+M.kf('#main', '--sx2', [[0, 100], [86, 100], [118, 0, 'softInOut'], [204, 100], [228, 10, 'softInOut']], { fmt: v => v + '%' });
+M.kf('#fMove', 'scale', [[0, 1], [88, 1], [108, 1.035], [124, .5, 'softLand'], [END, .48]]);
+M.kf('#fMove', 'y', [[0, 0], [108, 0], [124, -500, 'softLand'], [END, -510]]);
+M.mark(88, 'press', 'ONE FILM lands');
+
+// BEAT 3: glyphs arrive from the edges on "frame", "word", "note"
+const G = [['#g1', 114, { x: -900, rotation: -14 }], ['#g2', 147, { x: 900, rotation: 12 }], ['#g3', 180, { y: 1300, rotation: 10 }]];
+G.forEach(([id, at, from]) => {
+  M.enter(id, { at, frames: 14, ease: 'softLand', from: Object.assign({ scale: 1.6 }, from) });
+  M.mark(at, 'enter', id);
+});
+// idle bob on wrappers (separate property owner from the entry)
+M.kf('#g1w', 'y', [[0, 0], [128, 0], [160, -14, 'softInOut'], [196, 8, 'softInOut'], [204, 0, 'softInOut']]);
+M.kf('#g2w', 'y', [[0, 0], [161, 0], [186, 12, 'softInOut'], [204, 0, 'softInOut']]);
+
+// BEAT 4: { } snaps shut around them at f204 (6.8 s); glyphs are pulled in
+M.enter('#bL', { at: 204, frames: 9, ease: 'softLand', from: { x: -560, scale: 1.5 } });
+M.enter('#bR', { at: 204, frames: 9, ease: 'softLand', from: { x: 560, scale: 1.5 } });
+M.kf('#g1w', 'x', [[0, 0], [205, 0], [212, 50, 'softLand']]);
+M.kf('#g3w', 'x', [[0, 0], [205, 0], [212, -50, 'softLand']]);
+M.kf('#row', 'scale', [[0, 1], [205, 1], [208, .93, 'cruise'], [216, .98, 'softLand'], [END, 1.01]]);
+M.kf(M.wrap('#bL'), 'x', [[0, 0], [213, 0], [END, 22]]);
+M.kf(M.wrap('#bR'), 'x', [[0, 0], [213, 0], [END, -22]]);
+M.mark(204, 'snap', 'braces');
+
+window.__ready = Motion.loaded().then(() => { if (/selftest/.test(location.search)) Motion.selfTest(M, { samples: 24 }); });
+</script>
+</body>
+</html>

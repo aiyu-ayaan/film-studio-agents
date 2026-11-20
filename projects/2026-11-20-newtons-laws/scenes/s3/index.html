@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440, height=2560" />
+  <script src="./gsap.min.js"></script>
+  <style>
+    :root {
+      --ground: #0B101B;
+      --panel: #131B2E;
+      --ink: #F4F7FB;
+      --muted: #94A3B8;
+      --cyan: #38BDF8;
+      --amber: #F59E0B;
+      --emerald: #34D399;
+      --coral: #FB7185;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 1440px; height: 2560px; overflow: hidden;
+      background: var(--ground); font-family: "DejaVu Sans", sans-serif; color: var(--ink);
+    }
+    #root {
+      position: relative; width: 100%; height: 100%; overflow: hidden;
+      background: radial-gradient(circle at 50% 35%, #16223A 0%, #0D1322 55%, #0B101B 100%);
+    }
+    .grid {
+      position: absolute; inset: -10%;
+      background-image:
+        linear-gradient(rgba(148,163,184,0.06) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(148,163,184,0.06) 2px, transparent 2px);
+      background-size: 72px 72px;
+    }
+    .grain {
+      position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
+      background-image: radial-gradient(rgba(244,247,251,0.75) 1px, transparent 0);
+      background-size: 6px 6px;
+    }
+    #header {
+      position: absolute; top: 270px; left: 110px; width: 1120px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
+    }
+    #title {
+      font-size: 70px; font-weight: 800; letter-spacing: -0.02em;
+    }
+    #subtitle {
+      font-size: 42px; font-weight: 600; color: var(--amber);
+    }
+    #deriv-card {
+      position: absolute; top: 920px; left: 110px; width: 1120px;
+      background: rgba(19, 27, 46, 0.94);
+      border: 3px solid rgba(148, 163, 184, 0.25);
+      border-radius: 30px;
+      padding: 34px 42px;
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .card-head {
+      font-size: 38px; font-weight: 700; color: var(--muted); letter-spacing: 0.04em;
+    }
+    .step-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 26px; border-radius: 18px;
+      background: rgba(11, 16, 27, 0.78);
+      border-left: 8px solid var(--cyan);
+    }
+    .math {
+      font-family: Georgia, "Times New Roman", serif; font-style: italic;
+      font-size: 48px; font-weight: 700; color: var(--ink);
+    }
+    .tag { font-size: 38px; font-weight: 600; color: var(--muted); }
+    .hl-cyan { color: var(--cyan); }
+    .hl-amber { color: var(--amber); }
+    #hero-box {
+      padding: 24px 32px; border-radius: 22px;
+      background: rgba(245, 158, 11, 0.14);
+      border: 4px solid var(--amber);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    #hero-eq {
+      font-family: Georgia, "Times New Roman", serif; font-style: italic;
+      font-size: 78px; font-weight: 800; color: var(--amber);
+    }
+    #hero-si {
+      font-size: 38px; font-weight: 700; color: var(--ink); text-align: right; line-height: 1.35;
+    }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="24.7" data-width="1440" data-height="2560">
+    <div id="stage" class="clip" data-start="0" data-duration="24.7" data-track-index="0">
+      <div class="grid" id="grid"></div>
+      <div id="header">
+        <div id="title">Second Law: Momentum &amp; Force</div>
+        <div id="subtitle">Unbalanced FBD &amp; Formula Derivation</div>
+      </div>
+
+      <svg id="fbd-svg" viewBox="0 0 1440 2560" width="1440" height="2560" style="position:absolute;inset:0;pointer-events:none;">
+        <defs>
+          <linearGradient id="boxGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#0284C7"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Track Floor -->
+        <rect x="110" y="750" width="1120" height="24" rx="8" fill="#1E293B" stroke="#475569" stroke-width="3"/>
+        <text x="150" y="820" fill="#94A3B8" font-size="38" font-weight="600">u (initial)</text>
+        <text x="1030" y="820" fill="#38BDF8" font-size="38" font-weight="700">v (faster)</text>
+
+        <!-- Moving Box + FBD -->
+        <g id="cart">
+          <rect x="330" y="410" width="580" height="455" rx="26" fill="rgba(56,189,248,0.04)" stroke="rgba(56,189,248,0.45)" stroke-width="3" stroke-dasharray="14 10"/>
+
+          <!-- Block -->
+          <rect x="440" y="540" width="200" height="206" rx="18" fill="url(#boxGrad)" stroke="#BAE6FD" stroke-width="4"/>
+          <text x="482" y="596" text-anchor="middle" fill="#0B101B" font-size="52" font-weight="800" font-family="Georgia, serif" font-style="italic">m</text>
+          <circle cx="540" cy="643" r="12" fill="#F4F7FB" stroke="#0B101B" stroke-width="3"/>
+
+          <!-- F_N up (emerald) -->
+          <line x1="540" y1="630" x2="540" y2="460" stroke="#34D399" stroke-width="10" stroke-linecap="round"/>
+          <polygon points="540,432 519,472 561,472" fill="#34D399"/>
+          <text x="576" y="476" fill="#34D399" font-size="38" font-weight="700">F_N</text>
+
+          <!-- mg down (coral) -->
+          <line x1="540" y1="656" x2="540" y2="820" stroke="#FB7185" stroke-width="10" stroke-linecap="round"/>
+          <polygon points="540,848 519,808 561,808" fill="#FB7185"/>
+          <text x="576" y="838" fill="#FB7185" font-size="38" font-weight="700">mg</text>
+
+          <!-- Short friction f left -->
+          <line x1="528" y1="643" x2="385" y2="643" stroke="#FB7185" stroke-width="10" stroke-linecap="round"/>
+          <polygon points="355,643 395,622 395,664" fill="#FB7185"/>
+          <rect x="352" y="562" width="84" height="54" rx="10" fill="rgba(11,16,27,0.9)" stroke="#FB7185" stroke-width="2"/>
+          <text x="394" y="601" text-anchor="middle" fill="#FB7185" font-size="38" font-weight="700">f</text>
+
+          <!-- Long Applied Force F_app right -->
+          <line x1="552" y1="643" x2="855" y2="643" stroke="#F59E0B" stroke-width="14" stroke-linecap="round"/>
+          <polygon points="892,643 844,617 844,669" fill="#F59E0B"/>
+          <rect x="695" y="558" width="160" height="58" rx="12" fill="rgba(11,16,27,0.92)" stroke="#F59E0B" stroke-width="3"/>
+          <text x="775" y="600" text-anchor="middle" fill="#F59E0B" font-size="38" font-weight="700">F_app</text>
+        </g>
+      </svg>
+
+      <!-- Step-by-step Class 10 Derivation -->
+      <div id="deriv-card">
+        <div class="card-head">CLASS 10 DERIVATION (FROM MOMENTUM)</div>
+
+        <div class="step-row" id="s1-row">
+          <span class="math">p = m · v</span>
+          <span class="tag">Momentum</span>
+        </div>
+
+        <div class="step-row" id="s2-row">
+          <span class="math">Δp = m·v − m·u = m(v − u)</span>
+          <span class="tag">Change in p</span>
+        </div>
+
+        <div class="step-row" id="s3-row">
+          <span class="math">F ∝ <span class="hl-cyan">Δp / t</span> = m·<span class="hl-amber">(v − u) / t</span></span>
+          <span class="tag">Rate of Δp</span>
+        </div>
+
+        <div class="step-row" id="s4-row">
+          <span class="math">Since <span class="hl-amber">(v − u) / t = a</span>  ⇒  F = k·m·a</span>
+          <span class="tag">Accel. a</span>
+        </div>
+
+        <div id="hero-box">
+          <span id="hero-eq">F = m · a</span>
+          <div id="hero-si"><div>k = 1 in SI units</div><div style="color: var(--cyan);">1 N = 1 kg·m/s²</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="grain"></div>
+  </div>
+
+  <script>
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo('#grid', { y: 0 }, { y: -150, duration: 24.7, ease: 'none' }, 0);
+    tl.fromTo('#title', { y: -40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }, 0);
+    tl.fromTo('#subtitle', { y: -30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'power3.out' }, 0.2);
+
+    tl.fromTo('#cart', { x: -160, opacity: 0 }, { x: -100, opacity: 1, duration: 0.45, ease: 'power3.out' }, 0);
+    tl.to('#cart', { x: 240, duration: 23.8, ease: 'power1.in' }, 0.6);
+
+    tl.set(['#deriv-card', '#s1-row', '#s2-row', '#s3-row', '#s4-row', '#hero-box'], { opacity: 0, y: 36 }, 0);
+
+    tl.to('#deriv-card', { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 2.2);
+    tl.to('#s1-row', { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 5.6);
+    tl.to('#s2-row', { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 9.4);
+    tl.to('#s3-row', { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 13.1);
+    tl.to('#s4-row', { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, 16.7);
+    tl.to('#hero-box', { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.4)' }, 20.0);
+
+    window.__timelines = { main: tl };
+  </script>
+</body>
+</html>

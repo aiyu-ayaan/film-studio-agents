@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>s1 - Hook</title>
+<meta name="viewport" content="width=1440, height=2560">
+<link rel="stylesheet" href="./runtime/fonts.css">
+<style>
+:root {
+  --ground: #0B101B;
+  --panel: #131B2E;
+  --ink: #F4F7FB;
+  --muted: #94A3B8;
+  --cyan: #38BDF8;
+  --amber: #F59E0B;
+  --emerald: #34D399;
+  --coral: #FB7185;
+  --font: "Inter", "DejaVu Sans", sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 1440px; height: 2560px; overflow: hidden; background: #000; }
+#main {
+  position: absolute; left: 0; top: 0; width: 1440px; height: 2560px;
+  overflow: hidden; background: var(--ground); color: var(--ink);
+  font-family: var(--font); font-weight: 700;
+}
+.scene { position: absolute; inset: 0; }
+.cam { position: absolute; inset: 0; }
+.bg-glow {
+  position: absolute; inset: -15%;
+  background: radial-gradient(circle at 50% 40%, rgba(56,189,248,0.16) 0%, rgba(245,158,11,0.06) 38%, rgba(11,16,27,0) 70%);
+}
+.grid {
+  position: absolute; inset: -10%;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.06) 2px, transparent 2px),
+    linear-gradient(90deg, rgba(148,163,184,0.06) 2px, transparent 2px);
+  background-size: 72px 72px;
+}
+.grain {
+  position: absolute; inset: 0; opacity: 0.04; pointer-events: none;
+  background-image: radial-gradient(rgba(244,247,251,0.75) 1px, transparent 0);
+  background-size: 6px 6px;
+}
+.headline {
+  position: absolute; left: 100px; width: 1240px; text-align: center;
+  font-size: 118px; line-height: 132px; letter-spacing: -0.03em; white-space: pre;
+}
+.subline {
+  position: absolute; left: 120px; width: 1200px; text-align: center;
+  font-size: 74px; line-height: 92px; letter-spacing: -0.02em; font-weight: 600;
+  color: var(--cyan); white-space: pre;
+}
+#rule {
+  position: absolute; left: 420px; top: 1420px; width: 600px; height: 5px;
+  background: linear-gradient(90deg, transparent, var(--amber), transparent);
+  transform-origin: center center;
+}
+#stage-svg { position: absolute; inset: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="main">
+  <section id="s1" class="scene">
+    <div id="cam1" class="cam">
+      <div class="bg-glow" id="glow"></div>
+      <div class="grid" id="grid"></div>
+      <svg id="stage-svg" viewBox="0 0 1440 2560">
+        <defs>
+          <linearGradient id="bookCover" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#38BDF8"/>
+            <stop offset="100%" stop-color="#0284C7"/>
+          </linearGradient>
+          <linearGradient id="deskTop" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1E293B"/>
+            <stop offset="100%" stop-color="#0F172A"/>
+          </linearGradient>
+        </defs>
+        <g id="motes"></g>
+        <!-- Desk surface -->
+        <g id="desk">
+          <rect x="200" y="960" width="1040" height="36" rx="10" fill="url(#deskTop)" stroke="#475569" stroke-width="3"/>
+          <rect x="260" y="996" width="28" height="190" rx="6" fill="#1E293B"/>
+          <rect x="1152" y="996" width="28" height="190" rx="6" fill="#1E293B"/>
+          <ellipse id="book-shadow" cx="720" cy="958" rx="190" ry="14" fill="rgba(0,0,0,0.55)"/>
+        </g>
+        <!-- Physics Book (outer translate keeps SVG position; inner #book animates cleanly) -->
+        <g transform="translate(720, 895)">
+          <g id="book">
+            <rect x="-170" y="-65" width="340" height="124" rx="12" fill="url(#bookCover)" stroke="#BAE6FD" stroke-width="3"/>
+            <rect x="-152" y="34" width="304" height="20" rx="4" fill="#E2E8F0"/>
+            <line x1="-130" y1="-22" x2="130" y2="-22" stroke="#E0F2FE" stroke-width="5" stroke-linecap="round"/>
+            <text x="0" y="14" text-anchor="middle" fill="#0B101B" font-size="38" font-weight="800" font-family="Inter, DejaVu Sans, sans-serif">PHYSICS</text>
+          </g>
+        </g>
+        <!-- Subtle Newton apple/orbit rings behind title -->
+        <g id="rings" opacity="0">
+          <circle cx="720" cy="1420" r="340" fill="none" stroke="rgba(56,189,248,0.18)" stroke-width="3" stroke-dasharray="14 14"/>
+          <circle cx="720" cy="1420" r="460" fill="none" stroke="rgba(245,158,11,0.14)" stroke-width="2" stroke-dasharray="8 18"/>
+        </g>
+      </svg>
+      <div id="h1" class="headline" style="top: 1230px;">WHY DO THINGS MOVE?</div>
+      <div id="rule"></div>
+      <div id="h2" class="subline" style="top: 1470px;">NEWTON'S 3 LAWS OF MOTION</div>
+    </div>
+    <div class="grain"></div>
+  </section>
+</div>
+<script src="./runtime/vendor/gsap.min.js"></script>
+<script src="./runtime/motion.js"></script>
+<script>
+const M = Motion.film({ fps: 30, duration: 10.2, width: 1440, height: 2560, clock: 'smooth' });
+
+// Seeded vector motes (deterministic)
+(function buildMotes() {
+  const g = document.getElementById('motes');
+  let s = 9182;
+  const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+  for (let i = 0; i < 28; i++) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', (100 + rnd() * 1240).toFixed(1));
+    c.setAttribute('cy', (140 + rnd() * 1720).toFixed(1));
+    c.setAttribute('r', (2.5 + rnd() * 4.5).toFixed(1));
+    c.setAttribute('fill', i % 3 === 0 ? '#F59E0B' : '#38BDF8');
+    c.setAttribute('opacity', (0.18 + rnd() * 0.35).toFixed(2));
+    c.classList.add('mote');
+    g.appendChild(c);
+  }
+})();
+
+// Continuous slow camera drift & grid parallax
+M.kf('#cam1', 'scale', [[0, 1.0], [306, 1.07, 'linear']]);
+M.kf('#grid', 'y', [[0, 0], [306, -90, 'linear']]);
+M.kf('#glow', 'scale', [[0, 0.94], [150, 1.08, 'sineInOut'], [306, 1.0, 'sineInOut']]);
+
+// Book drops onto desk around 0.72s (f=22) -> lands cleanly at f=34 with zero bounce after rest
+M.kf('#book', 'y', [[0, -420], [10, -420], [22, 0, 'gentleIn'], [306, 0]]);
+M.kf('#book', 'rotation', [[0, -6], [10, -6], [22, 0, 'softLand'], [306, 0]]);
+M.kf('#book', 'opacity', [[0, 0], [8, 0], [12, 1], [306, 1]]);
+M.kf('#book-shadow', 'scaleX', [[0, 0.3], [10, 0.3], [22, 1, 'softLand'], [306, 1]]);
+M.kf('#book-shadow', 'opacity', [[0, 0.1], [10, 0.1], [22, 0.65, 'softLand'], [306, 0.65]]);
+
+// "WHY DO THINGS MOVE?" lands as narrator asks "Why?" (~2.5s = f=75)
+M.words('#h1', { at: 74, mech: 'rise', dist: 90, gaps: [4, 4, 5], smear: true, accent: { color: '#F59E0B', frames: 20, word: -1 } });
+M.kf('#rule', 'scaleX', [[0, 0.01], [74, 0.01], [92, 1.0, 'snapSettle'], [280, 1.12, 'gentleIn']]);
+M.kf('#rule', 'opacity', [[0, 0], [74, 0], [76, 1], [306, 1]]);
+
+// "NEWTON'S 3 LAWS OF MOTION" enters around 6.8s (f=204)
+M.words('#h2', { at: 202, mech: 'rise', dist: 75, gaps: [4, 4, 4, 4], smear: true });
+M.kf('#rings', 'opacity', [[0, 0], [198, 0], [220, 1, 'softLand'], [306, 0.85]]);
+M.kf('#rings', 'rotation', [[0, 0], [306, 28, 'linear']]);
+
+document.querySelectorAll('.mote').forEach((el, idx) => {
+  const dy = -140 - (idx % 4) * 40;
+  const dx = ((idx % 2 === 0 ? 1 : -1) * (18 + (idx % 3) * 14));
+  M.tl.fromTo(el, { y: 0, x: 0 }, { y: dy, x: dx, duration: 10.2, ease: 'none' }, 0);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+{
+  "title": "Newton's Three Laws of Motion",
+  "master": {
+    "width": 1440,
+    "height": 2560,
+    "fps": 30,
+    "speech": true,
+    "voice_engine": "kokoro",
+    "voice": "am_michael",
+    "lead_in_s": 0.4,
+    "gap_s": 0.35,
+    "tail_s": 1.2,
+    "cut_lead_s": 0.1,
+    "asr_min_ratio": 0.85,
+    "captions": "clean",
+    "lufs": -14,
+    "true_peak": -1.5,
+    "crf": 12,
+    "duration_s": 95.833,
+    "total_frames": 2875
+  },
+  "lines": [
+    {
+      "id": "l1",
+      "text": "Drop a book on a desk, and it just sits there. Why? Everything that moves... or refuses to move... follows three simple rules by Isaac Newton.",
+      "pause_after_s": 0.45,
+      "start_s": 0.4,
+      "end_s": 9.795,
+      "asr_ratio": 0.98,
+      "asr_ok": true
+    },
+    {
+      "id": "l2",
+      "text": "Newton's first law is inertia. Look at the free body diagram. Gravity pulls down with m g, and the table pushes up with normal force.",
+      "asr_min_ratio": 0.8,
+      "start_s": 10.245,
+      "end_s": 19.864,
+      "asr_ratio": 0.939,
+      "asr_ok": true
+    },
+    {
+      "id": "l3",
+      "text": "Since both forces are equal and opposite, net force is zero, so acceleration is zero. An object stays at rest, or keeps moving steady, until an unbalanced force acts.",
+      "pause_after_s": 0.45,
+      "start_s": 20.214,
+      "end_s": 32.74,
+      "asr_ratio": 1.0,
+      "asr_ok": true
+    },
+    {
+      "id": "l4",
+      "text": "Now push the box. Newton's second law says force equals the rate of change of momentum. Momentum p is mass times velocity, so change in momentum is m times v minus u.",
+      "asr_min_ratio": 0.8,
+      "start_s": 33.19,
+      "end_s": 46.235,
+      "asr_ratio": 1.0,
+      "asr_ok": true
+    },
+    {
+      "id": "l5",
+      "text": "Divide by time t, and v minus u over t is just acceleration a. That gives us the famous formula... F equals m times a, measured in Newtons.",
+      "asr_min_ratio": 0.8,
+      "pause_after_s": 0.45,
+      "start_s": 46.585,
+      "end_s": 57.385,
+      "asr_ratio": 0.964,
+      "asr_ok": true
+    },
+    {
+      "id": "l6",
+      "text": "Here's the intuition. Push a light box and a heavy box with the exact same force. More mass means less acceleration.",
+      "pause_after_s": 0.45,
+      "start_s": 57.835,
+      "end_s": 65.882,
+      "asr_ratio": 1.0,
+      "asr_ok": true
+    },
+    {
+      "id": "l7",
+      "text": "Finally, Newton's third law. Every action has an equal and opposite reaction. Look closely at both free body diagrams.",
+      "start_s": 66.332,
+      "end_s": 74.808,
+      "asr_ratio": 0.974,
+      "asr_ok": true
+    },
+    {
+      "id": "l8",
+      "text": "When skater A pushes skater B, force A B equals minus force B A. They never cancel out, because they act on two different bodies.",
+      "asr_min_ratio": 0.8,
+      "pause_after_s": 0.45,
+      "start_s": 75.158,
+      "end_s": 84.035,
+      "asr_ratio": 0.875,
+      "asr_ok": true
+    },
+    {
+      "id": "l9",
+      "text": "Zero net force means no change. F equals m a tells us how fast things speed up. And forces always come in pairs. Physics, made simple.",
+      "asr_min_ratio": 0.8,
+      "start_s": 84.485,
+      "end_s": 94.633,
+      "asr_ratio": 0.96,
+      "asr_ok": true
+    }
+  ],
+  "scenes": [
+    {
+      "id": "s1",
+      "skill": "motionmaxxing",
+      "line_ids": [
+        "l1"
+      ],
+      "brief": "Hook: book drops and rests still on blueprint desk; kinetic type WHY DO THINGS MOVE? -> 3 LAWS OF MOTION",
+      "clip": "scenes/s1/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 0.0,
+      "end_s": 10.145,
+      "start_f": 0,
+      "frames": 304
+    },
+    {
+      "id": "s2",
+      "skill": "hyperframes",
+      "line_ids": [
+        "l2",
+        "l3"
+      ],
+      "brief": "1st Law Inertia + FBD (mg down, F_N up, equal arrows) + \u03a3F = 0, a = 0, then unbalanced F_app pushes block",
+      "clip": "scenes/s2/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 10.145,
+      "end_s": 33.09,
+      "start_f": 304,
+      "frames": 689
+    },
+    {
+      "id": "s3",
+      "skill": "hyperframes",
+      "line_ids": [
+        "l4",
+        "l5"
+      ],
+      "brief": "2nd Law unbalanced FBD (F_app > f, F_N = mg) + step-by-step Class 10 derivation p=mv -> F \u221d m(v-u)/t -> F=ma",
+      "clip": "scenes/s3/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 33.09,
+      "end_s": 57.735,
+      "start_f": 993,
+      "frames": 739
+    },
+    {
+      "id": "s4",
+      "skill": "hyperframes",
+      "line_ids": [
+        "l6"
+      ],
+      "brief": "2nd Law intuition: same force F=12N on 1kg vs 4kg blocks showing a = F/m with proportional acceleration vectors",
+      "clip": "scenes/s4/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 57.735,
+      "end_s": 66.232,
+      "start_f": 1732,
+      "frames": 255
+    },
+    {
+      "id": "s5",
+      "skill": "hyperframes",
+      "line_ids": [
+        "l7",
+        "l8"
+      ],
+      "brief": "3rd Law action-reaction push-off + two separate FBDs side by side (F_AB on A, F_BA on B), F_AB = -F_BA, two bodies never cancel",
+      "clip": "scenes/s5/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 66.232,
+      "end_s": 84.385,
+      "start_f": 1987,
+      "frames": 545
+    },
+    {
+      "id": "s6",
+      "skill": "motionmaxxing",
+      "line_ids": [
+        "l9"
+      ],
+      "brief": "Recap lockup of all 3 formulas (\u03a3F=0, F=ma, F_AB=-F_BA) and closing beat PHYSICS, MADE SIMPLE.",
+      "clip": "scenes/s6/clip.mp4",
+      "sfx_stem": null,
+      "start_s": 84.385,
+      "end_s": 95.833,
+      "start_f": 2532,
+      "frames": 343
+    }
+  ],
+  "music": {
+    "path": "audio/music/bed.wav",
+    "licence": "CC0 (original Python-synthesized ambient science pad & marimba pulse)",
+    "credit": "Original ambient score generated locally via build/make_music.py",
+    "gain_db": -8
+  },
+  "sfx": [
+    {"path": "audio/sfx/drop.wav", "t": 0.72, "gain_db": -10},
+    {"path": "audio/sfx/swish.wav", "t": 10.14, "gain_db": -11},
+    {"path": "audio/sfx/pop.wav", "t": 14.55, "gain_db": -12},
+    {"path": "audio/sfx/pop.wav", "t": 18.55, "gain_db": -12},
+    {"path": "audio/sfx/pop.wav", "t": 30.65, "gain_db": -11},
+    {"path": "audio/sfx/swish.wav", "t": 33.09, "gain_db": -11},
+    {"path": "audio/sfx/chime.wav", "t": 53.15, "gain_db": -12},
+    {"path": "audio/sfx/swish.wav", "t": 57.73, "gain_db": -11},
+    {"path": "audio/sfx/swish.wav", "t": 66.23, "gain_db": -11},
+    {"path": "audio/sfx/drop.wav", "t": 69.65, "gain_db": -11},
+    {"path": "audio/sfx/swish.wav", "t": 84.38, "gain_db": -11},
+    {"path": "audio/sfx/chime.wav", "t": 93.10, "gain_db": -12}
+  ]
+}

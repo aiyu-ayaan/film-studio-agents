@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=1440, height=2560"/>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>
+:root{--night:#0E1220;--mist:#7C8DA8;--paper:#EDE6D6;--ember:#F2A33A}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1440px;height:2560px;overflow:hidden;background:var(--night)}
+#root{position:relative;width:1440px;height:2560px;overflow:hidden}
+svg{position:absolute;left:0;top:0}
+</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="13" data-width="1440" data-height="2560">
+<svg id="stage" class="clip" data-start="0" data-duration="13" data-track-index="0" width="1440" height="2560" viewBox="0 0 1440 2560">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#0E1220"/><stop offset=".45" stop-color="#2b3550"/><stop offset=".72" stop-color="#7C8DA8"/><stop offset="1" stop-color="#d9b88a"/></linearGradient>
+<radialGradient id="glow"><stop offset="0" stop-color="#F2A33A" stop-opacity=".9"/><stop offset=".35" stop-color="#F2A33A" stop-opacity=".35"/><stop offset="1" stop-color="#F2A33A" stop-opacity="0"/></radialGradient>
+<radialGradient id="vig" cx=".5" cy=".5" r=".75"><stop offset=".55" stop-color="#0E1220" stop-opacity="0"/><stop offset="1" stop-color="#0E1220" stop-opacity=".7"/></radialGradient>
+<filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .93  0 0 0 0 .9  0 0 0 0 .84  0 0 0 1.6 -.55"/></filter>
+<filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="3" seed="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="26"/></filter>
+<g id="monk"><path d="M-62 0 L-36 -250 Q0 -306 36 -250 L62 0 Z"/><circle cx="0" cy="-330" r="36"/><path d="M-70 -20 Q-90 -150 -50 -250 L-34 -230 Q-62 -140 -52 -20Z"/></g>
+<g id="pine"><path d="M0 -300 L-60 -150 L-26 -150 L-90 0 L90 0 L26 -150 L60 -150Z"/></g>
+</defs>
+<rect width="1440" height="2560" fill="url(#sky)"/>
+<circle id="sunglow" cx="720" cy="1330" r="620" fill="url(#glow)"/>
+<circle id="sun" cx="720" cy="1330" r="130" fill="#F2A33A" opacity=".85"/>
+<!-- far mountains -->
+<g id="far"><path filter="url(#ink)" fill="#56647f" opacity=".75" d="M-300 1700 L-300 1400 Q-100 1250 80 1380 Q260 1180 480 1350 Q700 1120 900 1330 Q1100 1200 1300 1360 Q1500 1230 1760 1400 L1760 1700Z"/></g>
+<g id="mid"><path filter="url(#ink)" fill="#2c3652" opacity=".92" d="M-300 1760 L-300 1520 Q-60 1430 200 1540 Q420 1440 640 1560 Q900 1420 1150 1550 Q1400 1450 1760 1560 L2400 1560 L2400 1760Z"/>
+<g fill="#222b44"><use href="#pine" transform="translate(120 1600) scale(.8)"/><use href="#pine" transform="translate(330 1620) scale(.55)"/><use href="#pine" transform="translate(1180 1610) scale(.7)"/><use href="#pine" transform="translate(1380 1600) scale(.9)"/><use href="#pine" transform="translate(-100 1610) scale(.7)"/></g></g>
+
+<!-- SCENE A: water -->
+<g id="A">
+<g id="aCam">
+<rect x="-300" y="1720" width="2100" height="1600" fill="#171d33"/>
+<g id="ripBack" stroke="#7C8DA8" stroke-width="5" fill="none" opacity=".5" stroke-linecap="round"></g>
+<g id="bankL" fill="#0E1220"><path filter="url(#ink)" d="M-300 1700 Q100 1690 330 1760 L330 1900 Q0 1960 -300 1950Z"/></g>
+<g id="bankR" fill="#0E1220"><path filter="url(#ink)" d="M1100 1760 Q1300 1690 1780 1700 L1780 1960 Q1300 1980 1100 1900Z"/></g>
+<g id="carry">
+ <g id="olderA" fill="#0E1220"><use href="#monk" transform="scale(1.45)"/>
+  <g id="woman" fill="#3a3550"><path d="M-170 -330 Q-80 -400 40 -350 Q90 -330 150 -370 L156 -340 Q80 -300 20 -320 Q-80 -330 -170 -300Z"/><circle cx="-190" cy="-345" r="28"/><path d="M-170 -300 L-110 -190 L-60 -300Z" fill="#4a4568"/></g>
+ </g>
+</g>
+<rect x="-300" y="1830" width="2100" height="1500" fill="#0E1220" opacity=".78"/>
+<g id="ripFront" stroke="#EDE6D6" stroke-width="6" fill="none" opacity=".35" stroke-linecap="round"></g>
+</g></g>
+
+<!-- SCENE B: road -->
+<g id="B" opacity="0">
+<g id="bRoad"><path filter="url(#ink)" fill="#171d33" d="M-300 1790 Q300 1760 900 1790 T3300 1780 L3300 3200 L-300 3200Z"/>
+<path fill="#2a3350" opacity=".6" d="M-300 1830 Q300 1815 900 1832 T3300 1825 L3300 1860 Q900 1870 -300 1865Z"/></g>
+<g id="bNear" fill="#0E1220"><use href="#pine" transform="translate(-100 1810) scale(1.5)"/><use href="#pine" transform="translate(700 1800) scale(1.1)"/><use href="#pine" transform="translate(1700 1810) scale(1.8)"/><path d="M-300 1900 Q300 1860 900 1900 T3300 1890 L3300 3200 L-300 3200Z" opacity=".0"/></g>
+<g id="walkers">
+ <g id="olderB" fill="#0E1220" transform="translate(900 1880)"><g class="body"><use href="#monk" transform="scale(1.4)"/></g></g>
+ <g id="youngB" fill="#0E1220" transform="translate(500 1880)"><g class="body"><use href="#monk" transform="scale(1.3)"/></g></g>
+</g>
+<g id="scrib" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="translate(520 1170)"></g>
+</g>
+
+<rect width="1440" height="2560" fill="url(#vig)"/>
+<rect width="1440" height="2560" filter="url(#grain)" opacity=".3"/>
+</svg>
+</div>
+<script>
+const NS="http://www.w3.org/2000/svg";
+function R(seed){let s=seed;return()=>((s=(s*16807)%2147483647)/2147483647)}
+const rnd=R(42);
+const $=id=>document.getElementById(id);
+function mk(tag,attrs,parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);parent.appendChild(e);return e}
+// ripples
+const ripB=[],ripF=[];
+for(let i=0;i<22;i++){const y=1740+i*34+rnd()*14,x=-200+rnd()*1500,w=160+rnd()*260;
+ const d=`M${x} ${y} q${w/4} -16 ${w/2} 0 t${w/2} 0`;
+ (i%3?ripB:ripF).push(mk("path",{d},i%3?$("ripBack"):$("ripFront")));}
+// scribbles
+const scr=[];
+const cols=["#EDE6D6","#F2A33A","#7C8DA8","#EDE6D6","#F2A33A","#EDE6D6"];
+for(let i=0;i<6;i++){let d="M0 0",x=0,y=0,a=rnd()*6;
+ for(let k=0;k<14;k++){x+=(rnd()-.5)*340;y+=(rnd()-.5)*300;x=Math.max(-300,Math.min(300,x));y=Math.max(-300,Math.min(220,y));d+=` Q${x+(rnd()-.5)*200} ${y+(rnd()-.5)*200} ${x} ${y}`}
+ scr.push(mk("path",{d,pathLength:1,"stroke-width":6+rnd()*5,stroke:cols[i],"stroke-dasharray":"1 1","stroke-dashoffset":1,opacity:0},$("scrib")));}
+
+const tl=gsap.timeline({paused:true});
+const CUT=6.4;
+// ---- A ----
+tl.fromTo("#aCam",{x:0,scale:1.02,transformOrigin:"720px 1700px"},{x:-120,scale:1.1,duration:CUT,ease:"none"},0);
+tl.fromTo("#far",{x:0},{x:-40,duration:CUT,ease:"none"},0);
+tl.fromTo("#mid",{x:0},{x:-90,duration:CUT,ease:"none"},0);
+tl.fromTo("#sunglow",{opacity:.9},{opacity:1,duration:CUT,ease:"none"},0);
+// monk crosses; sink slightly, bob
+tl.fromTo("#carry",{x:360,y:1862},{x:1150,y:1846,duration:5.6,ease:"none"},0);
+tl.to("#olderA",{y:-10,duration:.5,ease:"sine.inOut",repeat:11,yoyo:true},0);
+tl.to("#olderA",{rotation:-1.5,duration:.8,ease:"sine.inOut",repeat:6,yoyo:true,transformOrigin:"0 0"},0);
+// woman: lifted at start, set down gently and upright by 5.6
+tl.fromTo("#woman",{rotation:0,x:0,y:0,transformOrigin:"0 -300px"},{rotation:0,duration:.01},0);
+tl.to("#woman",{rotation:90,svgOrigin:"-190 -345",duration:1.0,ease:"power2.inOut"},4.7);
+tl.to("#carry",{y:1860,duration:1.2,ease:"none"},5.2);
+tl.to("#carry",{x:1190,duration:.8,ease:"power1.out"},5.6);
+// ripples drift
+[...ripB,...ripF].forEach((p,i)=>{tl.fromTo(p,{x:-30},{x:30,duration:1.1+(i%5)*.25,ease:"sine.inOut",repeat:Math.ceil(CUT/(1.1+(i%5)*.25)/1),yoyo:true},0);
+ tl.to(p,{opacity:.1,duration:.9+(i%4)*.3,ease:"sine.inOut",repeat:7,yoyo:true},0)});
+tl.to("#A",{opacity:0,duration:.001},CUT);
+// ---- B (hard cut) ----
+tl.set("#B",{opacity:1},CUT);
+tl.set("#aCam",{opacity:0},CUT);
+tl.fromTo("#far",{x:0},{x:-130,duration:13-CUT,ease:"none"},CUT);
+tl.fromTo("#mid",{x:0},{x:-420,duration:13-CUT,ease:"none"},CUT);
+tl.fromTo("#sunglow",{x:0},{x:-30,duration:13-CUT,ease:"none"},CUT);
+tl.fromTo("#bRoad",{x:0},{x:-700,duration:13-CUT,ease:"none"},CUT);
+tl.fromTo("#bNear",{x:0},{x:-1100,duration:13-CUT,ease:"none"},CUT);
+tl.fromTo("#walkers",{x:0},{x:-30,duration:13-CUT,ease:"none"},CUT);
+// walk bob
+["#olderB .body","#youngB .body"].forEach((s,i)=>{
+ tl.to(s,{y:-16,rotation:i?2:-2,transformOrigin:"0 0",duration:.3,ease:"sine.inOut",repeat:Math.ceil((13-CUT)/.3),yoyo:true},CUT+i*.15)});
+// scribbles grow and jitter
+const T=13-CUT;
+scr.forEach((p,i)=>{const t0=CUT+i*.55;
+ tl.set(p,{opacity:.95},t0);
+ tl.to(p,{strokeDashoffset:0,duration:1.4,ease:"power1.out"},t0);
+ const n=Math.floor((13-t0)/.18);
+ for(let k=0;k<n;k++){tl.to(p,{x:(rnd()-.5)*26,y:(rnd()-.5)*26,rotation:(rnd()-.5)*6,scale:1+(rnd()-.5)*.08,transformOrigin:"0 0",duration:.18,ease:"steps(1)"},t0+k*.18)}
+});
+tl.fromTo("#scrib",{scale:.6,transformOrigin:"0 0"},{scale:1.0,duration:T,ease:"power1.in"},CUT);
+window.__timelines=window.__timelines||{};window.__timelines["main"]=tl;
+tl.seek(0);
+</script></body></html>

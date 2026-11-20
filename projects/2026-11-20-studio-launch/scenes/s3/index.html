@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1440, height=2560" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "FiraCode Nerd Font";
+        src: url("fonts/FiraCodeNerdFont-Medium.ttf") format("truetype");
+        font-weight: 500;
+      }
+      @font-face {
+        font-family: "Montserrat";
+        src: url("fonts/Montserrat-ExtraBold.ttf") format("truetype");
+        font-weight: 800;
+      }
+      :root {
+        --ink: #0b0f1a;
+        --ink-lift: #141a2b;
+        --paper: #f4efe6;
+        --amber: #ffb547;
+        --cyan: #5ee6ff;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1440px;
+        height: 2560px;
+        overflow: hidden;
+        background: var(--ink);
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: var(--ink);
+      }
+      .full { position: absolute; inset: 0; }
+      #pool {
+        background:
+          radial-gradient(ellipse 900px 1100px at 720px 1050px, rgba(20, 26, 43, 1) 0%, rgba(20, 26, 43, 0.65) 45%, rgba(11, 15, 26, 0) 80%),
+          radial-gradient(ellipse 1400px 900px at 720px 300px, rgba(94, 230, 255, 0.05), rgba(0, 0, 0, 0) 70%);
+      }
+      #flare {
+        background: radial-gradient(ellipse 760px 620px at 720px 1050px, rgba(255, 181, 71, 0.22), rgba(255, 181, 71, 0) 70%);
+        opacity: 0;
+      }
+      #maskwrap {
+        -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 1880px, transparent 1985px);
+        mask-image: linear-gradient(to bottom, #000 0, #000 1880px, transparent 1985px);
+      }
+      #cam {
+        position: absolute;
+        inset: 0;
+        transform-origin: 720px 1050px;
+      }
+      #stage {
+        position: absolute;
+        inset: 0;
+        perspective: 2000px;
+        perspective-origin: 720px 1050px;
+        transform-style: preserve-3d;
+      }
+      #panel {
+        position: absolute;
+        left: 96px;
+        top: 712px;
+        width: 1248px;
+        height: 676px;
+        border-radius: 48px;
+        background:
+          linear-gradient(160deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.015) 38%, rgba(0, 0, 0, 0) 60%),
+          linear-gradient(180deg, rgba(24, 31, 50, 0.96), rgba(13, 17, 29, 0.97));
+        border: 2px solid rgba(244, 239, 230, 0.12);
+        box-shadow:
+          0 60px 140px rgba(0, 0, 0, 0.6),
+          0 0 0 1px rgba(0, 0, 0, 0.4),
+          inset 0 2px 0 rgba(255, 255, 255, 0.08);
+        transform-origin: 624px 338px;
+      }
+      #ring {
+        position: absolute;
+        inset: -2px;
+        border-radius: 48px;
+        border: 3px solid var(--cyan);
+        box-shadow: 0 0 60px rgba(94, 230, 255, 0.55), inset 0 0 40px rgba(94, 230, 255, 0.25);
+        opacity: 0;
+      }
+      #bar {
+        position: absolute;
+        left: 0; right: 0; top: 0;
+        height: 96px;
+        border-bottom: 2px solid rgba(244, 239, 230, 0.06);
+      }
+      #bar .pill {
+        position: absolute;
+        left: 48px; top: 38px;
+        width: 72px; height: 20px;
+        border-radius: 10px;
+        background: var(--amber);
+        box-shadow: 0 0 24px rgba(255, 181, 71, 0.6);
+      }
+      #bar .rail {
+        position: absolute;
+        left: 144px; right: 48px; top: 46px;
+        height: 4px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, rgba(94, 230, 255, 0.45), rgba(94, 230, 255, 0));
+      }
+      #term {
+        position: absolute;
+        left: 88px; top: 166px;
+        font-family: "FiraCode Nerd Font", monospace;
+        font-weight: 500;
+        font-size: 104px;
+        line-height: 150px;
+        color: var(--paper);
+        white-space: pre;
+      }
+      .row { position: absolute; left: 0; height: 150px; display: block; }
+      .row span { opacity: 0; }
+      .row .p { color: var(--cyan); }
+      .row .ok { color: var(--cyan); }
+      #caret {
+        position: absolute;
+        left: 0; top: 0;
+        width: 58px; height: 116px;
+        border-radius: 6px;
+        background: var(--amber);
+        box-shadow: 0 0 28px rgba(255, 181, 71, 0.7);
+      }
+      #shock {
+        position: absolute;
+        left: 96px; top: 712px;
+        width: 1248px; height: 676px;
+        border-radius: 60px;
+        border: 6px solid rgba(255, 181, 71, 0.9);
+        box-shadow: 0 0 80px rgba(255, 181, 71, 0.5);
+        opacity: 0;
+      }
+      .chip {
+        position: absolute;
+        left: 720px; top: 1050px;
+        height: 132px;
+        padding: 0 54px;
+        margin-top: -66px;
+        display: flex;
+        align-items: center;
+        border-radius: 40px;
+        font-family: "Montserrat", sans-serif;
+        font-weight: 800;
+        font-size: 78px;
+        letter-spacing: -0.03em;
+        color: var(--paper);
+        white-space: nowrap;
+        background: linear-gradient(180deg, rgba(28, 36, 58, 0.94), rgba(14, 19, 32, 0.94));
+        border: 3px solid rgba(94, 230, 255, 0.75);
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 30px rgba(94, 230, 255, 0.18);
+        opacity: 0;
+      }
+      .chip.hero {
+        background: var(--amber);
+        color: var(--ink);
+        border-color: #ffd08a;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 60px rgba(255, 181, 71, 0.55);
+      }
+      #grain {
+        position: absolute;
+        left: -200px; top: -200px;
+        width: 1840px; height: 2960px;
+        opacity: 0.07;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.2 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
+        pointer-events: none;
+      }
+      #vignette {
+        background: radial-gradient(ellipse 1100px 1600px at 720px 1150px, rgba(0, 0, 0, 0) 55%, rgba(0, 0, 0, 0.55) 100%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="5.533" data-width="1440" data-height="2560">
+      <div id="world" class="clip full" data-start="0" data-duration="5.533" data-track-index="0">
+        <div id="pool" class="full"></div>
+        <div id="flare" class="full"></div>
+        <div id="maskwrap" class="full">
+          <div id="cam">
+            <div id="stage">
+              <div id="panel">
+                <div id="bar"><div class="pill"></div><div class="rail"></div></div>
+                <div id="term">
+                  <div class="row" id="r0" style="top: 0"></div>
+                  <div class="row" id="r1" style="top: 150px"></div>
+                  <div class="row" id="r2" style="top: 300px"></div>
+                  <div id="caret"></div>
+                </div>
+                <div id="ring"></div>
+              </div>
+              <div id="shock"></div>
+              <div class="chip hero">HyperFrames</div>
+              <div class="chip">Shotcraft</div>
+              <div class="chip">Motionmaxxing</div>
+              <div class="chip">Lemo</div>
+              <div class="chip">3DViz</div>
+              <div class="chip">Remotion</div>
+              <div class="chip">Earshot</div>
+            </div>
+          </div>
+        </div>
+        <div id="vignette" class="full"></div>
+        <div id="grain"></div>
+      </div>
+    </div>
+    <script>
+      const DUR = 5.533;
+      const CW = 104 * (1200 / 1950); // FiraCode advance width at 104px
+      const LH = 150;
+      const tl = gsap.timeline({ paused: true });
+
+      // --- build terminal rows (each char a span, revealed by tl.set) ---
+      function fill(rowId, text, cls) {
+        const row = document.getElementById(rowId);
+        return [...text].map((ch) => {
+          const s = document.createElement("span");
+          s.textContent = ch;
+          if (cls) s.className = cls;
+          row.appendChild(s);
+          return s;
+        });
+      }
+      const p0 = fill("r0", "❯ ", "p");
+      const c0 = fill("r0", "/film-studio");
+      const c1 = fill("r1", "  launch video");
+      const c2 = fill("r2", "→ 7 skills", "ok");
+
+      const caret = document.getElementById("caret");
+      const caretAt = (col, row) => ({ x: col * CW + 2, y: row * LH + 22 });
+
+      // prompt + caret visible from frame 0
+      tl.set(p0, { opacity: 1 }, 0);
+      tl.set(caret, caretAt(2, 0), 0);
+
+      // caret blink while idle (deterministic sets)
+      function blink(from, to) {
+        for (let t = from, on = true; t < to; t += 0.2, on = !on) tl.set(caret, { opacity: on ? 1 : 0.15 }, t);
+        tl.set(caret, { opacity: 1 }, to);
+      }
+      blink(0, 0.4);
+
+      // fast typing 0.4 -> 1.6 s with seeded jitter
+      let seed = 7;
+      const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+      const keys = [];
+      c0.forEach((s, i) => keys.push({ s, col: 3 + i, row: 0 }));
+      c1.slice(2).forEach((s, i) => keys.push({ s, col: 3 + i, row: 1 }));
+      let kt = 0.4;
+      const step = 1.2 / keys.length;
+      keys.forEach((k, i) => {
+        tl.set(k.s, { opacity: 1 }, kt);
+        tl.set(caret, caretAt(k.col, k.row), kt);
+        kt += step * (0.7 + 0.6 * rnd());
+      });
+      tl.set(c1.slice(0, 2), { opacity: 1 }, 0.4);
+      blink(1.62, 1.9);
+
+      // Enter at 1.9: caret drops, panel pulses, output types
+      tl.set(caret, caretAt(0, 2), 1.9);
+      tl.fromTo("#panel", { scale: 1 }, { scale: 1.04, duration: 0.1, ease: "power3.out" }, 1.9);
+      tl.to("#panel", { scale: 1, duration: 0.35, ease: "power2.out" }, 2.0);
+      tl.fromTo("#ring", { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "power2.out" }, 1.9);
+      tl.to("#ring", { opacity: 0.25, duration: 0.5, ease: "power2.in" }, 1.98);
+      tl.fromTo("#flare", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "power2.out" }, 1.9);
+      tl.to("#flare", { opacity: 0.45, duration: 0.6, ease: "power2.inOut" }, 2.05);
+      c2.forEach((s, i) => {
+        tl.set(s, { opacity: 1 }, 1.98 + i * 0.03);
+        tl.set(caret, caretAt(i + 1, 2), 1.98 + i * 0.03);
+      });
+      blink(2.3, DUR);
+
+      // second pulse + shock ring as the skills burst out at 2.4
+      tl.fromTo("#panel", { scale: 1 }, { scale: 1.03, duration: 0.08, ease: "power3.out", immediateRender: false }, 2.36);
+      tl.to("#panel", { scale: 1, duration: 0.4, ease: "power2.out" }, 2.44);
+      tl.fromTo("#ring", { opacity: 0.25 }, { opacity: 1, duration: 0.06, immediateRender: false }, 2.36);
+      tl.to("#ring", { opacity: 0.3, duration: 0.5, ease: "power2.in" }, 2.45);
+      tl.fromTo("#shock", { scale: 0.96, opacity: 0.9 }, { scale: 1.9, opacity: 0, duration: 0.7, ease: "expo.out" }, 2.4);
+
+      // camera: slow push, then accelerate into the cut
+      tl.fromTo("#cam", { scale: 1.0, y: 20 }, { scale: 1.08, y: 0, duration: 4.5, ease: "sine.inOut" }, 0);
+      tl.to("#cam", { scale: 1.2, y: -40, duration: DUR - 4.5, ease: "power2.in" }, 4.5);
+      // panel drift in depth
+      tl.fromTo("#panel", { rotationY: -8, rotationX: 5, z: 0 }, { rotationY: 5, rotationX: 2, duration: 4.6, ease: "sine.inOut" }, 0);
+      tl.to("#panel", { rotationY: 9, z: 260, duration: DUR - 4.6, ease: "power2.in" }, 4.6);
+
+      // grain: seeded jumps every 2 frames
+      for (let f = 0; f < 168; f += 2) tl.set("#grain", { x: Math.floor(rnd() * 200) - 100, y: Math.floor(rnd() * 200) - 100 }, f / 30);
+
+      // --- chip orbit: pure function of time ---
+      const chips = [...document.querySelectorAll(".chip")];
+      const widths = chips.map((c) => c.textContent.length * 50 + 108); // approximate, only for centering
+      const eExpo = gsap.parseEase("expo.out");
+      const eP2o = gsap.parseEase("power2.out");
+      const eP2i = gsap.parseEase("power2.in");
+      const clamp = (v) => Math.max(0, Math.min(1, v));
+      const CY = 1050;
+      function layout(t) {
+        const b = eExpo(clamp((t - 2.4) / 0.65));
+        const spin = 0.7 * t + 1.5 * eP2o(clamp((t - 2.4) / 1.0));
+        const r = eP2i(clamp((t - 4.45) / (DUR - 4.45)));
+        const R = 0.12 + 0.88 * b;
+        chips.forEach((c, i) => {
+          const th = (i / 7) * Math.PI * 2 - Math.PI / 2 + spin;
+          const cx = Math.cos(th), sy = Math.sin(th);
+          const spread = 1 + 0.9 * r;
+          const x = 360 * cx * R * spread;
+          const y = 690 * sy * R * spread - 320 * r;
+          const z = 440 * cx * R - 260 * (1 - b) + 1450 * r + i * 4;
+          const depth = (cx + 1) / 2; // 0 back, 1 front
+          const vis = t < 2.4 ? 0 : clamp((t - 2.4) / 0.06);
+          gsap.set(c, {
+            x: x - widths[i] / 2,
+            y,
+            z,
+            rotationY: -sy * 10 + cx * 6,
+            rotationX: sy * 8,
+            opacity: vis * (0.5 + 0.5 * Math.max(depth, r)),
+          });
+        });
+      }
+      const clock = { t: 0 };
+      tl.fromTo(clock, { t: 0 }, { t: DUR, duration: DUR, ease: "none", onUpdate: () => layout(clock.t) }, 0);
+      layout(0);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

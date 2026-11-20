@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1200px;height:1700px;background:transparent;font-family:Montserrat,sans-serif}
+.card{position:absolute;inset:0;background:#EDE6D6;border-radius:56px;border:3px solid #cfc6b0;overflow:hidden}
+.bar{height:120px;display:flex;align-items:center;padding:0 60px;border-bottom:3px solid #d9d0ba;color:#7C8DA8;font-weight:600;font-size:56px;letter-spacing:.08em}
+.bar i{width:36px;height:36px;border-radius:50%;background:#F2A33A;margin-right:24px}
+h1{font-family:'Liberation Serif',Georgia,serif;font-style:italic;font-weight:400;font-size:112px;line-height:1.08;color:#0E1220;padding:70px 60px 40px}
+.row{display:flex;gap:36px;align-items:flex-start;padding:38px 60px;border-top:3px solid #d9d0ba;font-weight:500;font-size:104px;line-height:1.14;color:#0E1220;letter-spacing:-.01em;min-height:150px}
+.row b{flex:none;width:68px;height:68px;margin-top:22px;border:6px solid #F2A33A;border-radius:50%}
+.row span{flex:1}
+body.only .card{background:transparent;border-color:transparent}
+body.only .bar,body.only h1,body.only .row{visibility:hidden}
+body.only .row.on{visibility:visible}
+</style></head><body><div class="card">
+<div class="bar"><i></i>NOTES</div>
+<h1>Things I'm still carrying</h1>
+<div class="row" id="r1"><b></b><span>the argument from last week</span></div>
+<div class="row" id="r2"><b></b><span>the job that ended</span></div>
+<div class="row" id="r3"><b></b><span>the friend who changed</span></div>
+<div class="row" id="r4"><b></b><span>the version of you that failed</span></div>
+</div><script>
+const q=new URLSearchParams(location.search),o=q.get('only');
+if(o){document.body.classList.add('only');if(o!=='0')document.getElementById('r'+o).classList.add('on');
+ if(o==='0'){document.querySelectorAll('.bar,h1').forEach(e=>e.style.visibility='visible');document.body.classList.remove('only');document.querySelectorAll('.row').forEach(e=>e.style.visibility='hidden')}}
+</script></body></html>

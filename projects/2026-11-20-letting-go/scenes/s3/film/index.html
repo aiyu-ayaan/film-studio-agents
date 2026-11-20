@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>s3 kinetic type</title>
+<meta name="viewport" content="width=1440, height=2560">
+<style>
+@font-face{font-family:"Cormorant Garamond";src:url("fonts/cormorant-garamond-latin-700-normal.woff2") format("woff2");font-weight:700;font-display:block}
+@font-face{font-family:"Cormorant Garamond";src:url("fonts/cormorant-garamond-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:block}
+/* ACCENT ember = the one thing she carries (the word HER, the question's last word) */
+:root{--night:#0E1220;--mist:#7C8DA8;--paper:#EDE6D6;--ember:#F2A33A;--font:"Cormorant Garamond",serif}
+*{box-sizing:border-box}
+html,body{margin:0;width:1440px;height:2560px;overflow:hidden;background:#000}
+#main{position:absolute;left:0;top:0;width:1440px;height:2560px;overflow:hidden;background:var(--night);color:var(--paper);font-family:var(--font)}
+.scene{position:absolute;inset:0}
+.cam{position:absolute;inset:0}
+.ground{position:absolute;inset:0}
+.t{position:absolute;left:0;width:1440px;text-align:center;white-space:pre;line-height:1}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 62% at 50% 46%,rgba(0,0,0,0) 40%,rgba(4,6,14,.62) 100%)}
+.grain{position:absolute;inset:0;pointer-events:none;opacity:.05;mix-blend-mode:overlay}
+.blob{position:absolute;border-radius:50%;filter:blur(110px)}
+</style>
+</head>
+<body>
+<div id="main">
+
+<!-- A: the outburst. night ground, ember bleeding in low -->
+<section id="sA" class="scene">
+  <div class="ground" style="background:linear-gradient(180deg,#0A0E1B 0%,#0E1220 55%,#1a1a26 100%)"></div>
+  <div id="glowA" class="blob" style="left:150px;top:1050px;width:1140px;height:900px;background:rgba(242,163,58,.20)"></div>
+  <div id="camA" class="cam">
+    <div id="a1" class="t" style="top:430px;font-size:210px;font-weight:700;letter-spacing:6px">YOU</div>
+    <div id="a2" class="t" style="top:670px;font-size:250px;font-weight:700;letter-spacing:4px">CARRIED</div>
+    <div id="a3" class="t" style="top:960px;font-size:360px;font-weight:700;color:var(--ember)">HER!</div>
+    <div id="a4" class="t" style="top:1470px;font-size:96px;font-weight:400;color:var(--mist)">We're not supposed</div>
+    <div id="a5" class="t" style="top:1590px;font-size:96px;font-weight:400;color:var(--mist)">to do that!</div>
+  </div>
+  <div class="vig"></div>
+</section>
+
+<!-- B: the calm reply. mist dusk, slow -->
+<section id="sB" class="scene">
+  <div class="ground" style="background:linear-gradient(180deg,#141a2c 0%,#232f46 50%,#0E1220 100%)"></div>
+  <div id="glowB" class="blob" style="left:320px;top:900px;width:800px;height:700px;background:rgba(124,141,168,.26)"></div>
+  <div id="camB" class="cam">
+    <div id="b1" class="t" style="top:900px;font-size:150px;font-weight:700">I put her down</div>
+    <div id="b2" class="t" style="top:1090px;font-size:112px;font-weight:400;color:var(--mist)">at the river.</div>
+    <div id="q1" class="t" style="top:820px;font-size:112px;font-weight:400">Why are you</div>
+    <div id="q2" class="t" style="top:960px;font-size:112px;font-weight:400">still carrying</div>
+    <div id="q3" class="t" style="top:1120px;font-size:190px;font-weight:700;color:var(--ember)">her?</div>
+  </div>
+  <div class="vig"></div>
+</section>
+
+<svg class="grain" width="1440" height="2560" style="position:absolute;left:0;top:0"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="4"/><feColorMatrix values="0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1 0"/></filter><rect width="1440" height="2560" filter="url(#n)"/></svg>
+
+</div>
+<script src="./runtime/vendor/gsap.min.js"></script>
+<script src="./runtime/motion.js"></script>
+<script>
+const M = Motion.film({ fps: 30, duration: 10.2, width: 1440, height: 2560, clock: 'smooth' });
+const EMBER = '#F2A33A';
+
+/* A: l4 spoken f3-133. words slam in from oversize, hard. */
+M.enter('#a1', { at: 3,  frames: 7, ease: 'crashIn', from: { scale: 3.2, blur: 10 }, smear: { axis: 'y', px: 40, frames: 3 } });
+M.enter('#a2', { at: 9,  frames: 7, ease: 'crashIn', from: { scale: 3.2, blur: 10 }, smear: { axis: 'y', px: 40, frames: 3 } });
+M.enter('#a3', { at: 16, frames: 8, ease: 'crashIn', from: { scale: 3.6, blur: 12 }, smear: { axis: 'y', px: 50, frames: 3 } });
+// slam shock on the camera, stepped
+M.kf('#camA', 'y', [[16, 0], [17, 26], [19, -14], [22, 8], [26, 0]], { ease: 'softLand' });
+M.kf('#camA', 'scale', [[26, 1], [128, 1.045, 'gentleIn']]);
+M.words('#a4', { at: 74, mech: 'rise', dist: 40, gaps: [8, 7, 8], frames: 14, ease: 'softLand' });
+M.words('#a5', { at: 104, mech: 'rise', dist: 40, gaps: [7, 6, 9], frames: 14, ease: 'softLand' });
+M.kf('#glowA', 'opacity', [[0, .5], [16, 1, 'softLand'], [140, .7]]);
+// leave accelerating into the cut
+M.kf('#a1', 'y', [[0, 0], [128, 0], [141, -60, 'accelExit']]);
+
+M.cut(142, { hide: ['#sA'], show: ['#sB'] });
+
+/* B: l5 spoken f145-287. calm, long ease. */
+M.words('#b1', { at: 146, mech: 'focus', gaps: [9, 7, 12, 14], frames: 22, ease: 'glide' });
+M.words('#b2', { at: 190, mech: 'focus', gaps: [12, 14], frames: 22, ease: 'glide' });
+M.exit('#b1', { at: 214, frames: 14, ease: 'accelExit', to: { y: -50, opacity: 0 }, hide: true });
+M.exit('#b2', { at: 214, frames: 14, ease: 'accelExit', to: { y: -50, opacity: 0 }, hide: true });
+M.words('#q1', { at: 226, mech: 'focus', gaps: [8, 6, 9], frames: 20, ease: 'glide' });
+M.words('#q2', { at: 244, mech: 'focus', gaps: [8, 12], frames: 20, ease: 'glide' });
+M.enter('#q3', { at: 266, frames: 24, ease: 'glide', from: { scale: 1.5, blur: 10, opacity: 0 } });
+// the world breathes the whole time: slow push + glow
+M.kf('#camB', 'scale', [[142, 1], [304, 1.05]]);
+M.kf('#glowB', 'opacity', [[142, .6], [220, 1, 'softInOut'], [304, .75, 'softInOut']]);
+M.kf('#glowB', 'y', [[142, 40], [304, -50]]);
+window.__ready = Motion.loaded().then(() => { if (/selftest/.test(location.search)) Motion.selfTest(M, { samples: 24 }); });
+</script>
+</body>
+</html>

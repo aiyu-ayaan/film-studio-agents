@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>s10 payoff</title>
+<meta name="viewport" content="width=1440, height=2560">
+<style>
+/* ACCENT = amber: the brand's own mark (hyphen) and the action to take */
+:root { --ink:#0B0F1A; --ink2:#141A2B; --paper:#F4EFE6; --amber:#FFB547; --cyan:#5EE6FF; }
+* { box-sizing:border-box; }
+html, body { margin:0; width:1440px; height:2560px; overflow:hidden; background:var(--ink); }
+#main { position:absolute; left:0; top:0; width:1440px; height:2560px; overflow:hidden; color:var(--paper);
+  font-family:"Montserrat", sans-serif; font-weight:900;
+  background: radial-gradient(1100px 1300px at 50% 1080px, #1b2236 0%, var(--ink2) 38%, var(--ink) 78%); }
+#pool { position:absolute; left:-200px; top:300px; width:1840px; height:1700px;
+  background: radial-gradient(closest-side, rgba(255,181,71,.10), rgba(255,181,71,0) 70%); }
+#endcam { position:absolute; inset:0; transform-origin:720px 1100px; }
+#world { position:absolute; inset:0; perspective:2600px; perspective-origin:720px 1100px; }
+#rig { position:absolute; inset:0; transform-style:preserve-3d; transform-origin:720px 1100px; }
+#phone { position:absolute; left:280px; top:300px; width:880px; height:1600px; transform:translateZ(-260px); }
+#phoneBody { position:absolute; inset:0; border-radius:120px; border:6px solid rgba(244,239,230,.34);
+  background: linear-gradient(180deg, rgba(20,26,43,.75), rgba(11,15,26,.85));
+  box-shadow: 0 60px 160px rgba(0,0,0,.55), inset 0 0 0 2px rgba(255,255,255,.04); overflow:hidden; transform-origin:50% 50%; }
+#notch { position:absolute; left:340px; top:34px; width:200px; height:52px; border-radius:26px; background:#06080e; }
+#screen { position:absolute; inset:0; opacity:0;
+  background: radial-gradient(700px 900px at 50% 46%, rgba(255,181,71,.30), rgba(94,230,255,.06) 55%, rgba(11,15,26,0) 80%); }
+#sweep { position:absolute; top:-300px; left:0; width:260px; height:2200px; transform:rotate(18deg);
+  background: linear-gradient(90deg, rgba(244,239,230,0), rgba(244,239,230,.10), rgba(244,239,230,0)); }
+.stratum { position:absolute; left:60px; width:748px; height:6px; border-radius:3px; top:797px; }
+.slot { position:absolute; left:340px; width:760px; height:300px; transform-style:preserve-3d; transform-origin:50% 50%; }
+.card { position:absolute; inset:0; border-radius:40px; padding:34px 44px;
+  background: linear-gradient(160deg, rgba(36,44,68,.97), rgba(18,23,38,.97));
+  border:2px solid rgba(244,239,230,.16); box-shadow: 0 40px 90px rgba(0,0,0,.5); }
+.lab { font-size:108px; line-height:112px; letter-spacing:-0.03em; white-space:pre; }
+.vis { position:absolute; left:44px; right:44px; bottom:34px; height:96px; }
+.line { position:absolute; left:0; height:22px; border-radius:11px; background:rgba(244,239,230,.42); }
+.bar { position:absolute; bottom:48px; width:12px; border-radius:6px; background:var(--cyan); transform-origin:50% 50%; }
+.pill { position:absolute; left:0; top:6px; height:84px; padding:0 34px; border-radius:42px; background:rgba(11,15,26,.95);
+  border:2px solid rgba(244,239,230,.2); font-weight:800; font-size:46px; line-height:80px; letter-spacing:-0.02em; white-space:pre; }
+#lockup { position:absolute; left:0; top:0; width:1440px; height:2560px; }
+#wm { position:absolute; left:0; width:1440px; top:960px; text-align:center; font-size:184px; line-height:200px;
+  letter-spacing:-0.03em; white-space:pre; transform-origin:720px 100px;
+  background: linear-gradient(100deg, var(--paper) 0%, var(--paper) 42%, #ffffff 50%, var(--paper) 58%, var(--paper) 100%);
+  background-size:300% 100%; background-position:var(--sx, 100%) 0; -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  text-shadow:none; }
+#wm .hy { -webkit-text-fill-color:var(--amber); }
+#wmShadow { position:absolute; left:0; width:1440px; top:960px; text-align:center; font-size:184px; line-height:200px; letter-spacing:-0.03em;
+  white-space:pre; color:transparent; text-shadow:0 24px 60px rgba(0,0,0,.65); transform-origin:720px 100px; }
+#dm { position:absolute; left:0; width:1440px; top:1236px; text-align:center; font-family:"FiraCode Nerd Font", monospace; font-weight:700;
+  font-size:104px; line-height:120px; color:var(--amber); white-space:pre; }
+</style>
+</head>
+<body>
+<div id="main">
+  <div id="pool"></div>
+  <div id="endcam">
+    <div id="world"><div id="rig">
+      <div id="phone"><div id="phoneBody">
+        <div id="screen"></div>
+        <div class="stratum" id="st1" style="background:var(--paper)"></div>
+        <div class="stratum" id="st2" style="background:var(--cyan)"></div>
+        <div class="stratum" id="st3" style="background:var(--amber)"></div>
+        <div class="stratum" id="st4" style="background:var(--paper)"></div>
+        <div id="sweep"></div>
+        <div id="notch"></div>
+      </div></div>
+
+      <div class="slot" id="z1" style="top:420px"><div class="card" id="c1">
+        <div class="lab">SCRIPT</div>
+        <div class="vis">
+          <div class="line" id="l1" style="top:8px;width:600px"></div>
+          <div class="line" id="l2" style="top:40px;width:470px"></div>
+          <div class="line" id="l3" style="top:72px;width:320px"></div>
+        </div></div></div>
+
+      <div class="slot" id="z2" style="top:760px"><div class="card" id="c2">
+        <div class="lab">VOICE</div>
+        <div class="vis" id="wave"></div></div></div>
+
+      <div class="slot" id="z3" style="top:1100px"><div class="card" id="c3">
+        <div class="lab">MUSIC</div>
+        <div class="vis"><svg id="notes" width="672" height="96" viewBox="0 0 672 96">
+          <g stroke="rgba(244,239,230,.25)" stroke-width="2">
+            <line x1="0" y1="16" x2="672" y2="16"/><line x1="0" y1="32" x2="672" y2="32"/><line x1="0" y1="48" x2="672" y2="48"/>
+            <line x1="0" y1="64" x2="672" y2="64"/><line x1="0" y1="80" x2="672" y2="80"/></g>
+          <g fill="#FFB547" stroke="#FFB547" stroke-width="5">
+            <g id="n1"><ellipse cx="90" cy="64" rx="15" ry="11" stroke="none"/><line x1="104" y1="62" x2="104" y2="8"/></g>
+            <g id="n2"><ellipse cx="230" cy="48" rx="15" ry="11" stroke="none"/><line x1="244" y1="46" x2="244" y2="0"/></g>
+            <g id="n3"><ellipse cx="370" cy="72" rx="15" ry="11" stroke="none"/><line x1="384" y1="70" x2="384" y2="16"/></g>
+            <g id="n4"><ellipse cx="510" cy="40" rx="15" ry="11" stroke="none"/><line x1="524" y1="38" x2="524" y2="0"/></g>
+          </g></svg></div></div></div>
+
+      <div class="slot" id="z4" style="top:1440px"><div class="card" id="c4">
+        <div class="lab">CAPTIONS</div>
+        <div class="vis"><div class="pill"><span id="pw1">word</span> <span id="pw2">by</span> <span id="pw3">word</span></div></div></div></div>
+    </div></div>
+
+    <div id="lockup">
+      <div id="wmShadow">film-studio</div>
+      <div id="wm">film<span class="hy">-</span>studio</div>
+      <div id="dm">DM me "FILM"</div>
+    </div>
+  </div>
+</div>
+
+<script src="./runtime/vendor/gsap.min.js"></script>
+<script src="./runtime/motion.js"></script>
+<script>
+const M = Motion.film({ fps: 30, duration: 8.53, width: 1440, height: 2560, clock: 'smooth' });
+
+// waveform bars (built once, static markup; animation below is a pure function of t)
+const wave = document.getElementById('wave');
+const NB = 30;
+for (let i = 0; i < NB; i++) { const b = document.createElement('div'); b.className = 'bar'; b.id = 'b' + i; b.style.left = (i * 22.4) + 'px'; b.style.height = '80px'; wave.appendChild(b); }
+
+/* ---- camera orbit on the stack: always moving until the compression ---- */
+M.kf('#rig', 'rotationY', [[0, -26], [96, -14, 'cruise'], [108, 0, 'gentleIn']]);
+M.kf('#rig', 'rotationX', [[0, 14], [96, 9, 'cruise'], [108, 0, 'gentleIn']]);
+
+/* ---- four layers fly in from the edges, one per beat: land 0.3 / 0.9 / 1.5 / 2.1 s ---- */
+const DEPTH = [-150, -50, 50, 150];
+M.enter('#c1', { at: 0,  frames: 10, ease: 'softLand', from: { y: -1300, rotation: -6 }, smear: { axis: 'y', px: 40, frames: 3 } });
+M.enter('#c2', { at: 17, frames: 10, ease: 'softLand', from: { x: 1400, rotation: 5 },  smear: { axis: 'x', px: 40, frames: 3 } });
+M.enter('#c3', { at: 35, frames: 10, ease: 'softLand', from: { x: -1400, rotation: -5 }, smear: { axis: 'x', px: 40, frames: 3 } });
+M.enter('#c4', { at: 53, frames: 10, ease: 'softLand', from: { y: 1300, rotation: 6 },  smear: { axis: 'y', px: 40, frames: 3 } });
+
+/* ---- compression into the phone at 3.6 s (f108): depth collapses, layers flatten to strata ---- */
+const SLOT_Y = [420, 760, 1100, 1440];
+['#z1', '#z2', '#z3', '#z4'].forEach((s, i) => {
+  M.kf(s, 'z', [[0, DEPTH[i]], [96, DEPTH[i] * 1.25, 'cruise'], [108, -260, 'gentleIn']]);
+  const toY = 1100 - 150 - SLOT_Y[i] + (i - 1.5) * 14;  // centre of phone, tiny spread = 4 strata
+  M.kf(s, 'y', [[98, 0], [108, toY, 'gentleIn']]);
+  M.kf(s, 'scaleY', [[98, 1], [108, .02, 'gentleIn']]);
+  M.kf(s, 'scaleX', [[98, 1], [108, 1.0, 'gentleIn']]);
+  M.hide(s, 108);
+});
+M.mark(108, 'cut', 'stack compresses into phone');
+
+/* tiny visuals stay alive while layers are visible */
+M.kf('#l1', 'scaleX', [[10, .2], [22, 1, 'softLand']], {}); M.kf('#l2', 'scaleX', [[14, .2], [26, 1, 'softLand']]); M.kf('#l3', 'scaleX', [[18, .2], [30, 1, 'softLand']]);
+['#l1', '#l2', '#l3'].forEach(s => document.querySelector(s).style.transformOrigin = '0 50%');
+const life = { t: 0 };
+M.tl.fromTo(life, { t: 0 }, { t: 108 / 30, duration: 108 / 30, ease: 'none', immediateRender: false, onUpdate: () => {
+  const t = life.t;
+  for (let i = 0; i < NB; i++) {
+    const h = 0.25 + 0.75 * Math.abs(Math.sin(t * 7.1 + i * 0.73) * Math.sin(t * 2.3 + i * 0.31));
+    document.getElementById('b' + i).style.transform = 'scaleY(' + h.toFixed(3) + ')';
+  }
+  ['n1', 'n2', 'n3', 'n4'].forEach((n, i) => document.getElementById(n).setAttribute('transform', 'translate(0,' + (Math.sin(t * 5 + i * 1.4) * 6).toFixed(2) + ')'));
+  const k = Math.floor(t * 3) % 3;
+  ['pw1', 'pw2', 'pw3'].forEach((w, i) => document.getElementById(w).style.color = i === k ? '#FFB547' : '#F4EFE6');
+} }, 0);
+
+/* ---- impact: phone takes the hit and becomes the backdrop ---- */
+M.kf('#phoneBody', 'scale', [[0, 1], [106, 1], [109, .965, 'accelExit'], [120, 1, 'softLand'], [256, 1.035, 'cruise']]);
+M.kf('#phoneBody', 'borderColor', [[0, 'rgba(244,239,230,0.34)'], [107, 'rgba(244,239,230,0.34)'], [108, 'rgba(255,181,71,0.9)'], [130, 'rgba(244,239,230,0.22)', 'softLand']]);
+M.kf('#screen', 'opacity', [[0, 0], [107, 0], [108, 1], [128, .5, 'softLand'], [256, .62, 'cruise']]);
+const ST_Y = [-21, -7, 7, 21];
+['#st1', '#st2', '#st3', '#st4'].forEach((s, i) => {
+  M.show(s, 108, 175);
+  M.kf(s, 'y', [[108, ST_Y[i]], [150, ST_Y[i] * 14, 'softLand']]);
+  M.kf(s, 'opacity', [[108, 1], [150, .35, 'softLand'], [175, 0, 'cruise']]);
+  M.kf(s, 'scaleX', [[108, 1], [150, .7, 'softLand']]);
+});
+
+/* ---- wordmark crashes in from oversize at 4.6 s (f138) ---- */
+M.enter('#wm', { at: 138, frames: 20, ease: 'snapSettle', from: { scale: 3.5, blur: 14 } });
+M.enter('#wmShadow', { at: 138, frames: 20, ease: 'snapSettle', from: { scale: 3.5 } });
+M.kf('#wm', '--sx', [[0, 100], [200, 100], [250, -20, 'softInOut']], { fmt: v => v + '%' });
+
+/* ---- call to action at 6.2 s (f186) ---- */
+M.words('#dm', { at: 186, mech: 'rise', gaps: [4, 4], dist: 70, frames: 12, ease: 'softLand', smear: true });
+
+/* ---- sweep across the phone, ending gets smaller ---- */
+M.kf('#sweep', 'x', [[0, -500], [150, -500], [256, 1100, 'softInOut']]);
+M.drift('#endcam', { prop: 'scale', from: 1, to: .955, start: 200, end: 256 });
+M.kf('#pool', 'x', [[0, -60], [256, 60]]);
+
+window.__ready = Motion.loaded().then(() => { if (/selftest/.test(location.search)) Motion.selfTest(M, { samples: 24 }); });
+</script>
+</body>
+</html>

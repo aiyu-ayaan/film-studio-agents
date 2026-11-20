@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440, height=2560" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1440px; height: 2560px; overflow: hidden; background: #0B0F1A; }
+  #root { position: relative; width: 1440px; height: 2560px; overflow: hidden; background: #0B0F1A; }
+  /* ink ground with soft radial light pool */
+  #ground { position: absolute; inset: -200px;
+    background: radial-gradient(1100px 1300px at 50% 40%, #141A2B 0%, #10152400 75%), #0B0F1A; }
+  /* 2.5D camera stage (PageCam 3D model, ported to HTML) */
+  #stage { position: absolute; inset: 0; perspective-origin: 720px 1050px; }
+  #page { position: absolute; left: 0; top: 0; width: 1200px; height: 3520px; transform-style: preserve-3d; }
+  #page img { position: absolute; inset: 0; width: 1200px; height: 3520px; border-radius: 44px; }
+  #shadow { position: absolute; left: 20px; right: 20px; top: 60px; bottom: -40px; border-radius: 60px;
+    background: rgba(0,0,0,.85); filter: blur(60px); transform: translateZ(-120px); }
+  #rim { position: absolute; inset: 0; border-radius: 44px; box-shadow: inset 0 0 0 2px rgba(94,230,255,.18); }
+  /* soft light sweep lying on the page plane */
+  #sweep { position: absolute; inset: 0; border-radius: 44px; overflow: hidden; mix-blend-mode: screen; }
+  #sweep i { position: absolute; left: -900px; top: -400px; width: 700px; height: 5000px;
+    background: linear-gradient(90deg, rgba(255,214,150,0) 0%, rgba(255,214,150,.16) 45%, rgba(255,240,215,.22) 50%, rgba(255,214,150,.16) 55%, rgba(255,214,150,0) 100%);
+    transform: rotate(18deg); }
+  #vignette { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(1500px 2100px at 50% 42%, rgba(11,15,26,0) 55%, rgba(11,15,26,.75) 100%),
+                linear-gradient(180deg, rgba(11,15,26,0) 78%, rgba(11,15,26,.55) 100%); }
+  #grain { position: absolute; inset: -256px; background: url(public/grain.png); opacity: .035; mix-blend-mode: overlay; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="s4" data-start="0" data-duration="3.97" data-width="1440" data-height="2560" data-fps="30">
+  <div id="scene" class="clip" data-start="0" data-duration="3.97" data-track-index="0" style="position:absolute;inset:0;">
+    <div id="ground"></div>
+    <div id="stage">
+      <div id="page">
+        <div id="shadow"></div>
+        <img src="public/page.png" alt="film-studio page" />
+        <div id="sweep"><i></i></div>
+        <div id="rim"></div>
+      </div>
+    </div>
+    <div id="vignette"></div>
+    <div id="grain"></div>
+  </div>
+</div>
+<script>
+  window.__timelines = window.__timelines || {};
+  const D = 3.97, FX = 720, FY = 1050;
+  const page = document.getElementById('page');
+  const stage = document.getElementById('stage');
+  const sweep = document.querySelector('#sweep i');
+  const ground = document.getElementById('ground');
+  const grain = document.getElementById('grain');
+  const lerp = (a, b, t) => a + (b - a) * t;
+  // out-cubic blended with linear: lands softly but end slope never reaches 0 (camera still moving at the cut)
+  const ease = (t) => 0.78 * (1 - Math.pow(1 - t, 3)) + 0.22 * t;
+  // PageCam-style keys: start already mid tilt-reveal (page lying back), pitch up while gliding down to the s4 card
+  const A = { cx: 600, cy: 760, zoom: 1.02, rotX: 56, rotZ: -6, persp: 1500 };
+  const B = { cx: 560, cy: 1800, zoom: 1.40, rotX: 7, rotZ: 1.2, persp: 2600 };
+  const st = { t: 0 };
+  function apply() {
+    const t = st.t, e = ease(t);
+    const cx = lerp(A.cx, B.cx, e), cy = lerp(A.cy, B.cy, e), zoom = lerp(A.zoom, B.zoom, e);
+    const rotX = lerp(A.rotX, B.rotX, e), rotZ = lerp(A.rotZ, B.rotZ, e), persp = lerp(A.persp, B.persp, e);
+    stage.style.perspective = (persp * zoom) + 'px';
+    // layout-scale zoom (PageCam): rasterize at device size so text stays sharp under perspective
+    page.style.zoom = zoom;
+    page.style.transformOrigin = cx + 'px ' + cy + 'px';
+    page.style.transform = `translate(${FX / zoom - cx}px, ${FY / zoom - cy}px) rotateX(${rotX}deg) rotateZ(${rotZ}deg)`;
+    // light sweep crosses the page plane, linear so it never stalls
+    sweep.style.transform = `translate(${lerp(-300, 2300, t)}px, ${lerp(0, 600, t)}px) rotate(18deg)`;
+    ground.style.transform = `translate(${lerp(30, -30, e)}px, ${lerp(60, -80, e)}px)`;
+    const f = Math.round(t * D * 30);
+    grain.style.transform = `translate(${(f * 97) % 256}px, ${(f * 61) % 256}px)`;
+  }
+  const tl = gsap.timeline({ paused: true });
+  tl.to(st, { t: 1, duration: D, ease: 'none', onUpdate: apply }, 0);
+  apply();
+  window.__timelines['s4'] = tl;
+</script>
+</body>
+</html>
