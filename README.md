@@ -1,4 +1,4 @@
-# Movies
+# film-studio-agents
 
 A video studio run by AI coding agents (Claude Code and any tool that reads `AGENTS.md`). Each film is code (HTML, React, Three.js) rendered to MP4, with a local voice and code-made sound.
 
