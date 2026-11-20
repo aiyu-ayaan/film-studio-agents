@@ -6,11 +6,11 @@ Ask for a film; the `film-studio` skill writes the story, voices it, builds each
 
 ## Demo
 
-The studio launch film, made by the studio itself (47 s, vertical, narrated, captioned):
+The studio launch film, made by the studio itself (47 s, vertical, narrated):
 
 <img src="docs/launch.gif" alt="Studio launch film" width="270">
 
-[Full video with sound: `docs/launch.mp4`](docs/launch.mp4) (the GIF is silent) (720p copy; the full-quality master stays local at `projects/2026-11-20-studio-launch/renders/final.mp4`).
+[Full video with sound: `docs/launch.mp4`](docs/launch.mp4) (the GIF is silent; this is a 720p copy, the full-quality master stays local at `projects/2026-11-20-studio-launch/renders/final.mp4`).
 
 ## Quick start
 
