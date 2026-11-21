@@ -57,6 +57,7 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - Parallel work: send one standalone packet per scene to a subagent (foreground, in one message, so they keep Bash). Packet = scene brief, its narration text with `words` times (scene-relative), `style.md` content, w/h/fps, exact `frames`, output path, the adapter section, the `recipe`, "picture only", and the line `export HYPERFRAMES_CACHE_DIR=$HOME/.local/share/hyperframes-cache` (subagents do not inherit your shell).
 - Token budget: the packet lists the exact files to read (the recipe's blueprint file, registry items, shot-card folder, one Lemo `STYLE.md`, `hyperframes-core/SKILL.md` for HyperFrames). The subagent reads only those, never a whole skill folder or a 40 KB+ reference end to end. Group scenes that share an engine into one subagent (one Lemo agent for all Lemo scenes) so each skill is read once per film.
 - Render at most 2 scenes at a time: each render runs Chrome on this 8-core PC.
+- Speed: render fixes and look checks at draft (`--quality draft`, no `--shutter`/`--grain`); render each scene at delivery once, after its stills pass. Re-render only scenes whose source changed.
 - Check each clip: `python3 .claude/skills/film-studio/scripts/scene_check.py <project> --only <id>` (size, fps, length, recipe, frozen time <= 40%). Then 3 stills (start, middle, end) by eye against style.md. A failed scene goes back to its subagent with the printed reason.
 - Gate: `scene_check.py <project>` exits 0 for all scenes.
 

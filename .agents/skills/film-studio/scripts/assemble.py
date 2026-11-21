@@ -52,7 +52,7 @@ def picture(plan, proj, tmp):
     fc = ";".join(chains + ["".join(labels) + f"concat=n={len(labels)}:v=1:a=0[v]"])
     out = tmp / "picture.mp4"
     run(["ffmpeg", "-y", "-v", "error", *inputs, "-filter_complex", fc, "-map", "[v]", "-an",
-         "-c:v", "libx264", "-crf", str(m.get("crf", 12)), "-preset", "slow", "-r", str(fps), str(out)])
+         "-c:v", "libx264", "-crf", str(m.get("crf", 12)), "-preset", "medium", "-r", str(fps), str(out)])
     return out
 
 

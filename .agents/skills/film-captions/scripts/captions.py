@@ -287,7 +287,7 @@ def main():
     tmp_out = Path(tmpd) / out.name
     path = str(ass_p).replace("\\", "/").replace(":", "\\:").replace("'", "\\'")
     run(["ffmpeg", "-y", "-v", "error", "-i", str(inp), "-vf", f"ass='{path}'", "-c:v", "libx264", "-crf", a.crf,
-         "-preset", "slow", "-pix_fmt", "yuv420p", "-c:a", "copy", "-metadata", f"comment={TAG}:{a.style}",
+         "-preset", "medium", "-pix_fmt", "yuv420p", "-c:a", "copy", "-metadata", f"comment={TAG}:{a.style}",
          "-movflags", "+faststart", str(tmp_out)])
     shutil.move(str(tmp_out), out)
     shutil.rmtree(tmpd, ignore_errors=True)
