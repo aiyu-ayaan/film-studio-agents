@@ -55,16 +55,6 @@ Project skills live in `.agents/skills/` (the real files). `.claude/skills/` and
 | `film-outro` | The channel outro ("More tomorrow. Follow Renderstand.", about 2.9 s), built once and cached, then joined to any reel with a 0.5 s dip to dark. |
 | `film-idea-score` | Score a Reel/Short idea out of 100 before making it (MAKE / FIX / PARK / KILL). |
 
-### Design skills
-
-| Skill | Use it for |
-|---|---|
-| `design-system` | Three-layer design tokens (primitive, semantic, component), CSS variables, slide generation. |
-| `design` | Brand identity, tokens, logo and corporate-identity generation (the logo/CIP generators call Gemini; optional). |
-| `brand` | Brand voice, visual identity, messaging, asset checks. |
-| `banner-design` | Banners and covers for social, ads, website heroes and print. |
-| `slides` | HTML presentations with Chart.js and design tokens. |
-
 ### Remotion skills (only when the user or client asks for Remotion)
 
 | Skill | Use it for |
@@ -138,7 +128,7 @@ The growth plan behind this (which outside skills to add, what each platform rew
 | Path | What it holds |
 |---|---|
 | `AGENTS.md` / `CLAUDE.md` | Rules, skill router, pipeline. `AGENTS.md` is a symlink to `CLAUDE.md`. |
-| `.agents/skills/` | All project skills (film-*, design, remotion-*). `.claude/skills/` and `.hermes/skills/` link here. |
+| `.agents/skills/` | All project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` link here. |
 | `research/` | Dated notes: one card per skill, TTS, licences, money plan. |
 | `projects/<date>-<slug>/` | One folder per film: `plan.json`, script, storyboard, scene sources. |
 | `templates/project/` | Skeleton for new projects. |
