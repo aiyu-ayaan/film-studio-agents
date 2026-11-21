@@ -34,7 +34,7 @@ const AGENTS: [(&str, &str, &str, [&str; 3]); 3] = [
     ]),
     ("agy", "Antigravity", "agy", [
         "Plans only: changes nothing (--mode plan).",
-        "Accepts file edits; other tool requests are denied (--mode accept-edits).",
+        "Edits files and runs shell commands without asking; browser and other tools stay denied (--mode accept-edits, command(*) allowed). Headless Antigravity cannot ask, so this is close to full access.",
         "Approves every tool request without asking (--dangerously-skip-permissions).",
     ]),
 ];
@@ -128,7 +128,8 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
             for s in ["--output-format", "stream-json"] { push(s) }
             match level {
                 2 => push("--dangerously-skip-permissions"),
-                1 => { push("--mode"); push("accept-edits") }
+                // headless agy auto-denies every shell command; the pipeline cannot run without them
+                1 => { push("--mode"); push("accept-edits"); push("--settings"); push(r#"{"permissions":{"allow":["command(*)"]}}"#) }
                 _ => { push("--mode"); push("plan") }
             }
             if let Some(id) = session { push("--conversation"); push(id) }
@@ -238,8 +239,10 @@ fn readable(line: &str) -> Option<Line> {
             if let Some(d) = s["text_delta"].as_str() {
                 return l_delta(d);
             }
-            if s["state"] == "DONE" && s["step_type"] != "user_input" {
-                return l("tool", &format!("▸ {}", s["step_type"].as_str()?));
+            if s["state"] == "ACTIVE" && s["step_type"] == "tool" {
+                let p = &s["tool_info"]["parameters"];
+                let what = p["CommandLine"].as_str().map(str::to_owned).unwrap_or_else(|| short(p));
+                return l("tool", &format!("▸ {} {}", s["tool_name"].as_str().unwrap_or("tool"), what));
             }
             None
         }
@@ -426,6 +429,8 @@ mod tests {
         assert_eq!(readable(x).unwrap().text, "hey");
         let g = r#"{"event":"step_update","step_update":{"state":"ACTIVE","step_type":"agent_response","text_delta":"yo"}}"#;
         assert_eq!(readable(g).unwrap().kind, "delta");
+        let t = r#"{"event":"step_update","step_update":{"state":"ACTIVE","step_type":"tool","tool_name":"run_command","tool_info":{"parameters":{"CommandLine":"ls"}}}}"#;
+        assert_eq!(readable(t).unwrap().text, "▸ run_command ls");
         assert_eq!(session_of(&serde_json::from_str(r#"{"event":"init","conversation_id":"z"}"#).unwrap()), Some("z".into()));
         assert_eq!(readable("plain text").unwrap().kind, "raw");
         let r: Value = serde_json::from_str(r#"{"type":"result","total_cost_usd":0.5,"usage":{"input_tokens":2,"cache_creation_input_tokens":8,"cache_read_input_tokens":100,"output_tokens":4}}"#).unwrap();

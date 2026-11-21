@@ -17,5 +17,5 @@ Permission levels map to these flags:
 | Level | Claude Code | Codex | Antigravity |
 |---|---|---|---|
 | Read only | `--permission-mode plan` | `sandbox_mode="read-only"` | `--mode plan` |
-| Guarded | `--permission-mode auto` | `sandbox_mode="workspace-write"` | `--mode accept-edits` |
+| Guarded | `--permission-mode auto` (safety check on commands) | `sandbox_mode="workspace-write"` | `--mode accept-edits` + `command(*)` allowed: headless agy cannot ask, so without it every shell command is denied |
 | Full access | `--dangerously-skip-permissions` | `--dangerously-bypass-approvals-and-sandbox` | `--dangerously-skip-permissions` |
