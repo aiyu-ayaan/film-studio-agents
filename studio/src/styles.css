@@ -206,7 +206,9 @@ code { font-family: var(--mono); font-size: 0.9em; }
 }
 .pane-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
 .pane-foot { min-height: 44px; }
+.pane-head h3 { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .run-state { font-size: 13px; color: var(--muted); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.run-state { white-space: nowrap; min-width: 0; overflow: hidden; flex: 0 1 auto; }
 .run-state[data-state="on"]::before, .run-state[data-state="full"]::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); animation: blink 1.4s ease-in-out infinite; }
 .run-state[data-state="full"] { color: var(--danger); }
 .run-state[data-state="full"]::before { background: var(--danger); }

@@ -242,6 +242,7 @@ function renderRunState() {
     const model = modelValue();
     rs.textContent = `${a}${model ? ` (${model})` : ""} working · ${t}${runLevel === 2 ? " · full access" : ""}`;
     rs.dataset.state = runLevel === 2 ? "full" : "on";
+    rs.title = rs.textContent;
   } else {
     rs.textContent = `Idle · ${a}`;
     rs.dataset.state = "off";
