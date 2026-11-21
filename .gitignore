@@ -34,3 +34,8 @@ projects/*/scenes/*/*.events.json
 !docs/launch.gif
 projects/*
 !projects/.gitkeep
+# personal: own channel, brand files and paid-work records stay local
+business/
+channel/
+assets/brand/*
+!assets/brand/.gitkeep

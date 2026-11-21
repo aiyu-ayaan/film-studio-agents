@@ -45,7 +45,7 @@ These are reported as more expressive but need more than this GTX 1650 4 GB / CP
 
 ## Your KittenTTS setup
 
-- Path: `/media/aiyu/550E85595197DBEC/development/KittenTTS`, entry `tts.py`, runtime `kitten_tts_cpp`, model `KittenML/kitten-tts-2` (1.7B) with `student_w4` decoder.
+- Path: `~/development/KittenTTS (local clone)`, entry `tts.py`, runtime `kitten_tts_cpp`, model `KittenML/kitten-tts-2` (1.7B) with `student_w4` decoder.
 - Command: `.venv/bin/python tts.py -f script.txt --voice Claire --preset expressive -o out.wav`. Defaults and voice guide in its `config.md`.
 - Speed: ~2 min compute per ~10 s audio (its `CLAUDE.md`). Run in the background.
 - Model licence: Stellon Labs Community License (<https://huggingface.co/KittenML/kitten-tts-2/blob/main/LICENSE.md>). Section 3: commercial use allowed, but "you must register with Stellon Labs by contacting us"; above USD 1,000,000 annual revenue you need another licence. Section 4.c(iii): you own the outputs. Code is Apache-2.0.

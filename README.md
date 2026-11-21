@@ -85,14 +85,14 @@ The growth plan behind this (which outside skills to add, what each platform rew
 | `projects/<date>-<slug>/` | One folder per film: `plan.json`, script, storyboard, scene sources. |
 | `templates/project/` | Skeleton for new projects. |
 | `assets/` | Shared media, each file logged in `assets/LEDGER.md` with source and licence. |
-| `business/` | Paid work: leads and clients. |
-| `channel/` | Own Instagram + YouTube channel: `profile.md`, `swipe.md`, `ideas.md` (scored idea backlog). |
+| `business/` | Paid work: leads and clients. Local only, not in git. |
+| `channel/` | Own Instagram + YouTube channel: `profile.md`, `swipe.md`, `ideas.md` (scored idea backlog). Local only, not in git. |
 | `studio/` | Film Studio desktop app (Tauri: Rust in `src-tauri/`, TypeScript UI in `src/`). |
 | `bin/` | `studio.sh` (open the app), `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`, `clean.sh`. |
 
 ## Not in git
 
-Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
+Personal folders (`business/`, `channel/`, `assets/brand/<name>/`) stay local. Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
 
 ## Setup
 
