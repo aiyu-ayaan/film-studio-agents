@@ -72,7 +72,12 @@ def sound(plan, proj, tmp):
         fc.append(f"[{vo_idx}:a]aresample={SR},aformat=channel_layouts=stereo,apad,atrim=0:{total:.6f},asplit=2[vo][key]")
     music = plan.get("music") or {}
     if music.get("path"):
-        mi = add(proj / music["path"], ("-stream_loop", "-1"))
+        bed = proj / music["path"]
+        bed_s = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(bed)],
+                                     capture_output=True, text=True).stdout.strip() or 0)
+        # finite loop count: with -stream_loop -1 ffmpeg 7 keeps reading the bed forever after the mix is written
+        loops = max(0, -(-int(total * 1000) // max(1, int(bed_s * 1000))) - 1) if bed_s > 0 else 0
+        mi = add(bed, ("-stream_loop", str(loops)))
         fade = min(2.0, total / 4)
         gain = music.get("gain_db", -8 if speech else -1)
         fc.append(f"[{mi}:a]aresample={SR},aformat=channel_layouts=stereo,atrim=0:{total:.6f},"
