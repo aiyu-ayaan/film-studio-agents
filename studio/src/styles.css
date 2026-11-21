@@ -1,3 +1,4 @@
+@import "@fontsource-variable/archivo/standard.css";
 /* Film Studio: a cutting-room console. One loud element: the film-leader progress strip. */
 :root {
   --bg: #e7e9e4;          /* bench grey */
@@ -237,6 +238,23 @@ dialog p { margin: 0 0 12px; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- gate card and resume ---------- */
+.gate {
+  display: grid; gap: 10px; padding: 16px 18px; border-radius: var(--radius-m);
+  background: var(--surface); border: 2px solid var(--amber);
+}
+.gate-head { display: flex; gap: 12px; align-items: baseline; }
+.gate-head h3 { margin: 0; font-size: 18px; font-variation-settings: "wdth" 115; }
+.gate-q { margin: 0; font-size: 15.5px; max-width: 75ch; }
+.gate-files { display: flex; gap: 6px; flex-wrap: wrap; }
+.gate-doc {
+  margin: 0; max-height: 320px; overflow: auto; padding: 12px 14px; border-radius: var(--radius-s);
+  background: var(--bg); border: 1px solid var(--line); font: 13px/1.55 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.gate-form { display: grid; gap: 10px; }
+.resume { display: flex; gap: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 12px 16px; border-radius: var(--radius-m); background: var(--danger-bg); border: 1px solid var(--danger); }
+.resume p { margin: 0; font-weight: 600; color: var(--ink); max-width: 70ch; }
 
 /* ---------- additions: search, model pair, facts, chips, tabs, scenes, script, toast ---------- */
 .search input { min-height: 36px; }

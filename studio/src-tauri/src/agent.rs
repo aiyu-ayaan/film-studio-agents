@@ -269,6 +269,7 @@ pub fn start_agent(
     session: Option<String>,
     level: u8,
     lean: bool,
+    project: Option<String>,
     model: Option<String>,
     effort: Option<String>,
     custom_cmd: Option<String>,
@@ -313,7 +314,29 @@ pub fn start_agent(
         .spawn()
         .map_err(|e| format!("Could not start the agent: {e}"))?;
 
-    let _ = app.emit("agent-line", Line { kind: "info", text: format!("$ {shown}") });
+    // per-film record so any agent (or a later app session) can pick up where this run stopped
+    let studio = project.as_deref().map(crate::project_dir).transpose()?.map(|d| d.join(".studio"));
+    if let Some(s) = &studio {
+        std::fs::create_dir_all(s).map_err(|e| e.to_string())?;
+    }
+    let started = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0);
+    let mut record = serde_json::json!({
+        "agent": agent, "model": clean_opt(&model), "level": level.min(2), "started": started, "exit": null,
+    });
+    if let Some(s) = &studio {
+        let _ = std::fs::write(s.join("last-run.json"), record.to_string());
+    }
+    let log = studio.as_ref().and_then(|s| std::fs::OpenOptions::new().create(true).append(true).open(s.join("run.log")).ok());
+    let log = Arc::new(Mutex::new(log));
+    let note = |l: &Line| {
+        if let Some(f) = log.lock().unwrap().as_mut() {
+            use std::io::Write;
+            let _ = writeln!(f, "{}", l.text);
+        }
+    };
+    let head = Line { kind: "info", text: format!("--- run {started}: {agent} {}\n$ {shown}", ["read only", "guarded", "full access"][level.min(2) as usize]) };
+    note(&head);
+    let _ = app.emit("agent-line", head);
     let out = child.stdout.take().unwrap();
     let err = child.stderr.take().unwrap();
     *slot = Some(child);
@@ -327,23 +350,37 @@ pub fn start_agent(
         }
     });
     let child_ref = runner.child.clone();
+    let log2 = log.clone();
+    let note = move |l: &Line| {
+        if let Some(f) = log2.lock().unwrap().as_mut() {
+            use std::io::Write;
+            let _ = if l.kind == "delta" { write!(f, "{}", l.text) } else { writeln!(f, "{}", l.text) };
+        }
+    };
     std::thread::spawn(move || {
         let mut sent_session = false;
         for line in BufReader::new(out).lines().map_while(Result::ok) {
             if !sent_session {
                 if let Some(id) = serde_json::from_str::<Value>(&line).ok().as_ref().and_then(session_of) {
-                    let _ = app.emit("agent-session", id);
+                    let _ = app.emit("agent-session", id.clone());
                     sent_session = true;
+                    record["session"] = Value::String(id);
                 }
             }
             if let Some(u) = serde_json::from_str::<Value>(&line).ok().as_ref().and_then(usage_of) {
                 let _ = app.emit("agent-usage", u);
             }
             if let Some(l) = readable(&line) {
+                note(&l);
                 let _ = app.emit("agent-line", l);
             }
         }
         let code = child_ref.lock().unwrap().as_mut().and_then(|c| c.wait().ok()).and_then(|s| s.code());
+        note(&Line { kind: "info", text: format!("--- exit {}", code.map_or("signal".into(), |c| c.to_string())) });
+        if let Some(s) = &studio {
+            record["exit"] = code.map_or(Value::String("signal".into()), Value::from);
+            let _ = std::fs::write(s.join("last-run.json"), record.to_string());
+        }
         let _ = app.emit("agent-exit", code);
     });
     Ok(shown)

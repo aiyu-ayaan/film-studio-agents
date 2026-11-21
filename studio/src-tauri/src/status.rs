@@ -36,6 +36,12 @@ pub struct Status {
     pub scenes: Vec<Value>,
     /// narration lines: id, text
     pub lines: Vec<Value>,
+    /// .studio/gate.json written by the agent at a user gate, else null
+    pub gate: Value,
+    /// .studio/handoff.md, the agent's note for whoever continues
+    pub handoff: Option<String>,
+    /// .studio/last-run.json written by the app: agent, model, level, started, exit
+    pub last_run: Value,
 }
 
 const STAGES: [(&str, &str, &str); 11] = [
@@ -61,6 +67,10 @@ fn differs_from_template(root: &Path, dir: &Path, name: &str) -> bool {
 
 fn non_empty_dir(p: &Path) -> bool {
     std::fs::read_dir(p).map_or(false, |mut d| d.next().is_some())
+}
+
+fn read_json(p: &Path) -> Value {
+    std::fs::read_to_string(p).ok().and_then(|s| serde_json::from_str(&s).ok()).unwrap_or(Value::Null)
 }
 
 fn c(label: impl Into<String>, ok: bool) -> Check {
@@ -159,6 +169,10 @@ pub fn project_status(root: &Path, dir: &Path) -> Status {
             })
         }).collect(),
         lines: lines.iter().map(|l| json!({"id": l["id"], "text": l["text"]})).collect(),
+        gate: read_json(&dir.join(".studio/gate.json")),
+        handoff: std::fs::read_to_string(dir.join(".studio/handoff.md")).ok()
+            .map(|s| s.chars().take(4000).collect()),
+        last_run: read_json(&dir.join(".studio/last-run.json")),
     }
 }
 
@@ -213,5 +227,9 @@ mod tests {
         assert_eq!(s.current, 11);
         assert!(s.stages.iter().all(|st| st.done));
         assert!(s.final_video.is_some());
+        assert!(s.gate.is_null());
+        fs::create_dir_all(p.join(".studio")).unwrap();
+        fs::write(p.join(".studio/gate.json"), r#"{"gate":"G1","question":"Approve?"}"#).unwrap();
+        assert_eq!(project_status(root.path(), &p).gate["gate"], "G1");
     }
 }

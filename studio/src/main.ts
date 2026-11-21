@@ -1,6 +1,5 @@
-import "@fontsource-variable/archivo/standard.css";
-import "./styles.css";
 import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 
 type Check = { label: string; ok: boolean };
@@ -11,6 +10,9 @@ type Status = {
   scenes_done: number; scenes_total: number; final_video: string | null;
   master: { width?: number; height?: number; fps?: number; duration_s?: number; voice_engine?: string; voice?: string; captions?: string; speech: boolean };
   scenes: Scene[]; lines: { id: string; text: string }[];
+  gate: { gate?: string; question?: string; files?: string[]; options?: string[] } | null;
+  handoff: string | null;
+  last_run: { agent?: string; model?: string; started?: number; exit?: number | string | null; session?: string } | null;
 };
 type Project = { name: string; path: string; status: Status };
 type Agent = { id: string; label: string; bin: string | null; levels: [string, string, string] };
@@ -131,8 +133,31 @@ function filmPrompt(rel: string, brief: string, o: { speech: boolean; framing: b
     o.framing ? `Also apply ${FRAMING_SKILL}: plan an intro and a bridge between every topic section.` : "",
     `Brief: ${brief}`,
     leanRules(),
-    "At a user gate (G1 script + storyboard approval, voice choice), stop and ask in one short message. My answer comes in the next turn.",
+    GATE_RULES,
   ].filter(Boolean).join("\n");
+}
+
+const GATE_RULES = "Follow \"Gates and handoff\" in the film-studio SKILL.md: at every user gate write .studio/gate.json in the project and end your turn; my answer comes as the next message. Keep .studio/handoff.md current.";
+
+/** Prompt for an agent that has no session for this film: restate context, point at the handoff files. */
+function handoffPrompt(user: string) {
+  const s = current!.status;
+  const rel = `projects/${current!.name}`;
+  const lr = s.last_run;
+  const who = lr?.agent ? `The last run was ${agentLabel(lr.agent)}${lr.exit === 0 ? ", which finished its turn" : `, which stopped (exit ${lr.exit ?? "unknown"})`}.` : "";
+  const stage = s.stages[s.current];
+  return [
+    `Take over the film in ${rel}. ${who}`,
+    `From the files, it is at stage ${stage ? `${stage.id} ${stage.label}` : "done"} (${Math.round(s.progress * 100)}%).`,
+    `Read ${rel}/.studio/handoff.md if it exists and the last 80 lines of ${rel}/.studio/run.log, check the files on disk, then continue from the first stage whose gate does not pass with .agents/skills/${s.master.speech ? "film-studio" : "film-studio-nospeech"}/SKILL.md. Do not redo stages that pass.`,
+    GATE_RULES,
+    leanRules(),
+    `User: ${user}`,
+  ].filter(Boolean).join("\n");
+}
+
+function agentLabel(id: string) {
+  return agents.find((a) => a.id === id)?.label ?? (id === "custom" ? "a custom agent" : id);
 }
 
 function leanRules() {
@@ -150,6 +175,7 @@ async function run(prompt: string, resume: boolean) {
     await invoke("start_agent", {
       agent: id, prompt, session, level: runLevel,
       lean: $<HTMLInputElement>("lean").checked,
+      project: current.path,
       model: modelValue() || null,
       effort: $<HTMLSelectElement>("effort").value || null,
       customCmd: $<HTMLInputElement>("custom-cmd").value || null,
@@ -251,10 +277,10 @@ $("stop").addEventListener("click", () => invoke("stop_agent"));
 function send(text: string) {
   if (!text || running || !current) return;
   addLine({ kind: "info", text: `You: ${text}` });
+  // same agent as the last run and a session to resume: just send. Otherwise hand over with context.
   const hasSession = !!store.get(`session:${current.path}:${agentSel.value}`);
-  const rel = `projects/${current.name}`;
-  // a fresh agent (switched tool or no session yet) needs the context restated
-  run(hasSession ? text : `Continue the film in ${rel} from its current stage, following its plan.json and .agents/skills/film-studio/SKILL.md.\n${leanRules()}\nUser: ${text}`, hasSession);
+  const sameAgent = (current.status.last_run?.agent ?? agentSel.value) === agentSel.value;
+  run(hasSession && sameAgent ? text : handoffPrompt(text), hasSession && sameAgent);
 }
 $("reply-form").addEventListener("submit", (e) => {
   e.preventDefault();
@@ -309,7 +335,16 @@ function open(path: string) {
   current = projects.find((p) => p.path === path) ?? null;
   if (!current) return;
   if (!running) {
-    $("log").replaceChildren(el("p", "empty-log", "Nothing yet in this session. Send a message to continue this film."));
+    $("log").replaceChildren(el("p", "empty-log", "No runs yet for this film. Send a message to start the agent."));
+    lastBlock = null;
+    const path = current.path;
+    invoke<string>("read_project_file", { dir: path, name: ".studio/run.log", tailLines: 300 })
+      .then((t) => {
+        if (current?.path !== path || running || !t.trim()) return;
+        $("log").replaceChildren();
+        t.split("\n").forEach((line) => addLine({ kind: line.startsWith("---") || line.startsWith("$ ") ? "info" : line.startsWith("▸") ? "tool" : "text", text: line }));
+      })
+      .catch(() => {});
   }
   picked = null;
   playing = "";
@@ -425,10 +460,81 @@ function renderFilm() {
 
   renderScenes(s);
   renderScript(s);
+  renderGate(s);
+  renderResume(s);
   if (!playing || (playing !== s.final_video && !s.scenes.some((x) => x.clip === playing))) {
     play(s.final_video, "Final film");
   }
   $<HTMLButtonElement>("open-video").disabled = !playing;
+}
+
+// ---------- gate card: the agent stopped for the user's decision ----------
+let gateDoc = "";
+function renderGate(s: Status) {
+  const g = s.gate;
+  const box = $("gate");
+  box.hidden = !g || running;
+  if (!g || running) return;
+  const key = JSON.stringify(g);
+  if (box.dataset.key === key) return; // keep what the user is reading or typing
+  box.dataset.key = key;
+  $("gate-id").textContent = g.gate ?? "Gate";
+  $("gate-q").textContent = g.question ?? "The agent stopped and is waiting for you.";
+  const files = g.files?.length ? g.files : [];
+  $("gate-files").replaceChildren(...files.map((f) => {
+    const b = el("button", "chip", f);
+    b.type = "button";
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", async () => {
+      const doc = $<HTMLPreElement>("gate-doc");
+      $("gate-files").querySelectorAll(".chip").forEach((c) => c.setAttribute("aria-pressed", String(c === b)));
+      if (gateDoc === f && !doc.hidden) { doc.hidden = true; b.setAttribute("aria-pressed", "false"); gateDoc = ""; return; }
+      gateDoc = f;
+      doc.hidden = false;
+      doc.textContent = await invoke<string>("read_project_file", { dir: current!.path, name: f, tailLines: 0 }).catch((e) => String(e));
+    });
+    return b;
+  }));
+  $("gate-doc").hidden = true;
+  gateDoc = "";
+  const opts = g.options?.length ? g.options : ["Approve"];
+  $("gate-options").replaceChildren(...opts.map((o, i) => {
+    const b = el("button", i === 0 ? "btn primary" : "btn", o);
+    b.type = "button";
+    b.addEventListener("click", () => answerGate(o));
+    return b;
+  }));
+  $<HTMLTextAreaElement>("gate-note").value = "";
+}
+
+async function answerGate(text: string) {
+  if (!current || running) return;
+  const g = current.status.gate;
+  await invoke("clear_gate", { dir: current.path }).catch(() => {});
+  $("gate").hidden = true;
+  $("gate").dataset.key = "";
+  send(`${g?.gate ?? "Gate"}: ${text}`);
+}
+$("gate-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const t = $<HTMLTextAreaElement>("gate-note").value.trim();
+  if (t) answerGate(`Changes requested: ${t}`);
+});
+
+// ---------- resume after a failed or interrupted run, with any agent ----------
+function renderResume(s: Status) {
+  const lr = s.last_run;
+  const failed = lr && lr.exit !== 0;
+  const key = `resume-hidden:${current!.path}:${lr?.started}`;
+  const show = !!failed && !running && !s.gate && store.get(key) !== "1" && s.current < s.stages.length;
+  $("resume").hidden = !show;
+  if (!show) return;
+  const how = lr!.exit == null ? "was interrupted" : `stopped with exit ${lr!.exit}`;
+  const stage = s.stages[s.current]?.label;
+  $("resume-text").textContent = `The last run with ${agentLabel(lr!.agent ?? "")} ${how} during ${stage}. Pick any agent in the sidebar and resume: it reads the handoff note and run log, checks the files, and carries on.`;
+  $("resume-btn").textContent = `Resume with ${agentSel.selectedOptions[0]?.text ?? "this agent"}`;
+  $("resume-btn").onclick = () => send("Resume the film from where the last run stopped.");
+  $("resume-hide").onclick = () => { store.set(key, "1"); $("resume").hidden = true; };
 }
 
 function play(path: string | null, label: string) {
@@ -558,5 +664,7 @@ document.addEventListener("contextmenu", (e) => {
 
   await refresh();
   show("empty");
+  // window starts hidden (tauri.conf.json) and appears once the first render is done
+  requestAnimationFrame(() => getCurrentWindow().show());
   setInterval(() => { if (current || running) refresh(); }, 2000);
 })();

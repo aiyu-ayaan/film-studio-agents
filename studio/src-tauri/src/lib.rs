@@ -75,6 +75,41 @@ fn new_project(slug: String) -> Result<String, String> {
     Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
 }
 
+/// A project's own folder, checked to be inside projects/ (trust boundary for UI paths).
+pub fn project_dir(dir: &str) -> Result<PathBuf, String> {
+    let p = PathBuf::from(dir).canonicalize().map_err(|e| e.to_string())?;
+    if p.parent() != Some(root().join("projects").as_path()) {
+        return Err("Not a film folder.".into());
+    }
+    Ok(p)
+}
+
+/// Read a text file inside one film folder (script.md, STORYBOARD.md, .studio/run.log...).
+/// `tail_lines` > 0 returns only the last lines.
+#[tauri::command]
+fn read_project_file(dir: String, name: String, tail_lines: usize) -> Result<String, String> {
+    let d = project_dir(&dir)?;
+    let p = d.join(&name).canonicalize().map_err(|_| format!("{name} does not exist yet."))?;
+    if !p.starts_with(&d) {
+        return Err("That file is outside the film folder.".into());
+    }
+    let s = std::fs::read_to_string(&p).map_err(|e| e.to_string())?;
+    Ok(if tail_lines > 0 {
+        let v: Vec<&str> = s.lines().collect();
+        v[v.len().saturating_sub(tail_lines)..].join("\n")
+    } else {
+        s.chars().take(200_000).collect()
+    })
+}
+
+/// The user answered a gate: remove .studio/gate.json so the card closes.
+#[tauri::command]
+fn clear_gate(dir: String) -> Result<(), String> {
+    let p = project_dir(&dir)?.join(".studio/gate.json");
+    if p.exists() { std::fs::remove_file(p).map_err(|e| e.to_string())?; }
+    Ok(())
+}
+
 /// Open a file or folder inside the repo with the desktop's default app.
 #[tauri::command]
 fn open_path(path: String) -> Result<(), String> {
@@ -93,6 +128,12 @@ pub fn run() {
         .setup(|app| {
             // let the webview play renders/final.mp4 from any project
             app.asset_protocol_scope().allow_directory(root().join("projects"), true)?;
+            // the UI shows the hidden window after its first render; show it anyway if the UI failed
+            let h = app.handle().clone();
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_secs(4));
+                if let Some(w) = h.get_webview_window("main") { let _ = w.show(); }
+            });
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -102,6 +143,8 @@ pub fn run() {
             project_status,
             new_project,
             open_path,
+            read_project_file,
+            clear_gate,
             agent::list_agents,
             agent::list_models,
             agent::start_agent,

@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Film Studio</title>
+    <!-- styles in the head, not imported from JS, so the first paint is already styled -->
+    <link rel="stylesheet" href="/src/styles.css" />
+    <style>
+      html { background: #e7e9e4; }
+      @media (prefers-color-scheme: dark) { html { background: #15181b; } }
+    </style>
     <script type="module" src="/src/main.ts" defer></script>
   </head>
   <body>
@@ -135,6 +141,34 @@
             </div>
             <div class="stage-detail" id="stage-detail" aria-live="polite"></div>
           </div>
+
+          <section id="gate" class="gate" hidden aria-labelledby="gate-h">
+            <div class="gate-head">
+              <h3 id="gate-h">The agent needs your decision</h3>
+              <span id="gate-id" class="badge"></span>
+            </div>
+            <p id="gate-q" class="gate-q"></p>
+            <div id="gate-files" class="gate-files"></div>
+            <pre id="gate-doc" class="gate-doc" tabindex="0" hidden></pre>
+            <form id="gate-form" class="gate-form">
+              <div id="gate-options" class="row"></div>
+              <label class="field">
+                <span>Or ask for changes</span>
+                <textarea id="gate-note" rows="2" placeholder="e.g. Make the intro shorter and use a warmer voice"></textarea>
+              </label>
+              <div class="row">
+                <button class="btn" type="submit" id="gate-send">Send changes</button>
+              </div>
+            </form>
+          </section>
+
+          <section id="resume" class="resume" hidden>
+            <p id="resume-text"></p>
+            <div class="row">
+              <button id="resume-btn" class="btn primary" type="button"></button>
+              <button id="resume-hide" class="btn" type="button">Not now</button>
+            </div>
+          </section>
 
           <div class="work">
             <section class="log-pane" aria-labelledby="log-h">

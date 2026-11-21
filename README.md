@@ -12,14 +12,33 @@ The studio launch film, made by the studio itself (47 s, vertical, narrated):
 
 [Full video with sound: `docs/launch.mp4`](docs/launch.mp4) (the GIF is silent; this is a 720p copy, the full-quality master stays local at `projects/2026-11-20-studio-launch/renders/final.mp4`).
 
-## Quick start
+## Desktop app (Film Studio)
+
+```bash
+bin/studio.sh            # builds the release app on first run (a few minutes), then opens it
+bin/studio.sh --rebuild  # force a fresh release build
+```
+
+A Tauri app (Rust + TypeScript, in `studio/`) that drives the pipeline with any agent CLI:
+
+- **Agents:** Claude Code, Codex, Antigravity, or any command (`$PROMPT` holds the prompt). Pick the model and effort per agent.
+- **What the agent may do:** *Read only*, *Guarded* (default: edits plus a safety check on commands) or *Full access* (no checks). Full access asks you to confirm, shows a red banner while on, and resets to Guarded each launch. The exact command and flags are the first line of every run log.
+- **Progress:** the 11 stages (0 Brief to 9 Cleanup) as a film-leader strip, read from the files each stage writes. It looks the same whichever agent is working. Click a stage to see what it does and which files prove it. Facts, Scenes (render state, play a clip) and Script tabs.
+- **Gates in the app:** at G1 (script and storyboard) and other user gates, the agent writes `.studio/gate.json` and stops. The app shows the question, the files to read, and Approve or Request changes, then resumes the agent with your answer.
+- **Switch agents mid-film:** every run is logged to `.studio/run.log`, and the agent keeps `.studio/handoff.md`. If a run fails (say Antigravity stops halfway), pick another agent and press *Resume*: it reads the note and the log, checks the files, and continues from the first stage that does not pass.
+- **Lean run** (on by default): drops MCP servers the pipeline never uses (only Earshot stays) and asks the agent to read only what each stage names. Same pipeline, fewer tokens. A per-film token and cost meter shows the effect.
+- **Intro and chapter bridges:** a checkbox on the new-film form that applies the `film-framing` skill.
+
+Develop with hot reload: `cd studio && pnpm install && pnpm tauri dev`. Rust tests: `cd studio/src-tauri && cargo test`. Linux needs webkit2gtk-4.1 and the GStreamer libav plugin (`gst-inspect-1.0 avdec_h264`) to play H.264 in the app.
+
+## Quick start (agent in a terminal)
 
 ```bash
 bin/new-project.sh my-film        # makes projects/<date>-my-film/ from templates/project/
 # then, in your agent: /film-studio  "a 60 s explainer about ..."
 ```
 
-Narrated film: `/film-studio`. Music-led film with no speech: `/film-studio-nospeech`. Captions on any video: `/film-captions`.
+Narrated film: `/film-studio`. Music-led film with no speech: `/film-studio-nospeech`. Captions on any video: `/film-captions`. Intro, chapter cards and smooth topic changes for long films: add `/film-framing`.
 
 ## How a film is made
 
@@ -38,7 +57,8 @@ Every scene carries a `recipe` in `plan.json`: the blueprint, registry blocks, c
 | `templates/project/` | Skeleton for new projects. |
 | `assets/` | Shared media, each file logged in `assets/LEDGER.md` with source and licence. |
 | `business/` | Paid work: leads and clients. |
-| `bin/` | `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`. |
+| `studio/` | Film Studio desktop app (Tauri: Rust in `src-tauri/`, TypeScript UI in `src/`). |
+| `bin/` | `studio.sh` (open the app), `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`, `clean.sh`. |
 
 ## Not in git
 

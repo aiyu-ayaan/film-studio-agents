@@ -90,6 +90,13 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - `bin/clean.sh <project>` (`-n` first to see the list). Deletes rebuildable bulk: `build/`, `renders/.clean/`, draft renders, scene clips/frames/caches, `node_modules`, vendored runtimes; then `git gc`. Keeps sources, `audio/` and `renders/final.mp4` + `.srt` + `qa.json`.
 - Re-editing later: re-render the scene clips first (`scene_check.py` lists the missing ones), then rerun assemble.py.
 
+## Gates and handoff (any agent, needed by the Studio app)
+
+The Studio app (`studio/`) runs this skill headless with Claude Code, Codex, Antigravity or another agent, and lets the user switch agent mid-film. Two files in `<project>/.studio/` make that work. Write them whatever tool you are.
+- `handoff.md`: overwrite after every stage gate passes and before you stop for any reason. At most 30 lines: stage reached, what is done (files), decisions made (voice engine and voice, captions style, approvals given), next step, open problems. Another agent starts from this note, so write facts, not plans you have not checked.
+- `gate.json`: at a user gate (G1, voice choice, review sign-off, or any question only the user can answer), write `{"gate": "G1", "question": "<one sentence>", "files": ["script.md", "STORYBOARD.md"], "options": ["Approve", "<other choice>"]}` (`files` relative to the project, `options` optional), update `handoff.md`, then end your turn without waiting. The user's answer arrives as the next message; the app deletes `gate.json`.
+- Taking over from another agent: read `handoff.md` and the end of `.studio/run.log`, check the files on disk, then continue from the first stage whose gate does not pass. Never redo a stage that passes.
+
 ## Quality bar (best possible picture)
 
 Apply on every scene, whatever the skill. Taken from Motionmaxxing's measured findings and Shotcraft/HyperFrames practice.
