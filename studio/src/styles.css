@@ -140,7 +140,8 @@ code { font-family: var(--mono); font-size: 0.9em; }
 .row .check { flex: 1 1 240px; }
 .error { margin: 0; color: var(--danger); font-weight: 600; min-height: 1.5em; }
 
-.film { display: flex; flex-direction: column; gap: 20px; flex: 1 0 auto; }
+/* the film view fills the window; only when it cannot fit its minimum does .main scroll */
+.film { display: flex; flex-direction: column; gap: 20px; flex: 1 0 0; }
 
 /* ---------- the film leader ---------- */
 .leader-wrap { display: grid; gap: 10px; }
@@ -197,8 +198,9 @@ code { font-family: var(--mono); font-size: 0.9em; }
 /* ---------- work area: two panes on shared rows ---------- */
 .work {
   display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr);
-  /* fixed body row: the log scrolls inside its pane instead of growing the page */
-  grid-template-rows: auto max(360px, calc(100vh - 220px)) auto; column-gap: 24px; row-gap: 12px;
+  /* takes the height left under the leader; the log scrolls inside its pane, the page does not grow */
+  grid-template-rows: auto minmax(0, 1fr) auto; column-gap: 24px; row-gap: 12px;
+  flex: 1 0 0; min-height: 380px;
 }
 .pane { display: grid; grid-row: span 3; grid-template-rows: subgrid; min-width: 0; min-height: 0; }
 .pane-head {

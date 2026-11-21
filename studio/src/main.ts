@@ -193,12 +193,14 @@ function renderFormatHelp() {
 }
 // remember the last picture and length choices
 const FMT_IDS = ["format", "fps", "length", "w", "h", "len-m", "len-s"];
+function restoreFormat() {
+  FMT_IDS.forEach((id) => { const v = store.get(`new:${id}`); if (v) $<HTMLInputElement>(id).value = v; });
+  renderFormatHelp();
+}
 FMT_IDS.forEach((id) => {
-  const v = store.get(`new:${id}`);
-  if (v) $<HTMLInputElement>(id).value = v;
   $(id).addEventListener("input", () => { store.set(`new:${id}`, $<HTMLInputElement>(id).value); renderFormatHelp(); });
 });
-renderFormatHelp();
+restoreFormat();
 
 function leanRules() {
   if (!$<HTMLInputElement>("lean").checked) return "";
@@ -256,10 +258,17 @@ function renderRunState() {
 }
 setInterval(() => running && renderRunState(), 1000);
 
+// follow the newest line unless the user scrolled up to read; scrolling back down resumes it
+let follow = true;
+$("log").addEventListener("scroll", () => {
+  const log = $("log");
+  follow = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+}, { passive: true });
+
 function addLine(l: Line) {
   const log = $("log");
   log.querySelector(".empty-log")?.remove();
-  const stick = log.scrollHeight - log.scrollTop - log.clientHeight < 40;
+  const stick = follow;
   if (l.kind === "delta" && lastBlock?.dataset.kind === "delta") {
     lastBlock.textContent += l.text;
   } else {
@@ -319,6 +328,7 @@ function send(text: string) {
   if (!text || running || !current) return;
   // any answer closes an open gate, whichever box it was typed in
   if (current.status.gate) invoke("clear_gate", { dir: current.path }).catch(() => {});
+  follow = true; // your own message: jump to the bottom
   addLine({ kind: "info", text: `You: ${text}` });
   // same agent as the last run and a session to resume: just send. Otherwise hand over with context.
   const hasSession = !!store.get(`session:${current.path}:${agentSel.value}`);
@@ -370,6 +380,7 @@ $("new-form").addEventListener("submit", async (e) => {
       ...pictureAndLength(),
     }), false);
     $<HTMLFormElement>("new-form").reset();
+    restoreFormat();
   } catch (err) {
     $("new-error").textContent = String(err);
   }
@@ -386,6 +397,7 @@ function open(path: string) {
       .then((t) => {
         if (current?.path !== path || running || !t.trim()) return;
         $("log").replaceChildren();
+        follow = true;
         t.split("\n").forEach((line) => addLine({ kind: line.startsWith("---") || line.startsWith("$ ") ? "info" : line.startsWith("▸") ? "tool" : "text", text: line }));
       })
       .catch(() => {});

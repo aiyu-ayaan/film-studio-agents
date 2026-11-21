@@ -412,6 +412,15 @@ impl Runner {
     pub fn kill(&self) {
         if let Some(c) = self.child.lock().unwrap().as_mut() {
             if c.try_wait().ok().flatten().is_none() {
+                // agents (agy) start long commands in their own session, outside our process group:
+                // signal every descendant first, while they are still findable under the agent's pid
+                #[cfg(target_os = "linux")]
+                {
+                    let pids: Vec<String> = descendants(c.id()).iter().map(u32::to_string).collect();
+                    if !pids.is_empty() {
+                        let _ = Command::new("kill").arg("-TERM").args(&pids).status();
+                    }
+                }
                 #[cfg(unix)]
                 let _ = Command::new("kill").args(["-TERM", "--", &format!("-{}", c.id())]).status();
                 let _ = c.kill();
@@ -420,8 +429,42 @@ impl Runner {
     }
 }
 
+/// All live descendants of `root`, from the parent pids in /proc/<pid>/stat.
+#[cfg(target_os = "linux")]
+fn descendants(root: u32) -> Vec<u32> {
+    let mut kids: std::collections::HashMap<u32, Vec<u32>> = Default::default();
+    for e in std::fs::read_dir("/proc").into_iter().flatten().flatten() {
+        let Some(pid) = e.file_name().to_str().and_then(|n| n.parse::<u32>().ok()) else { continue };
+        let Ok(stat) = std::fs::read_to_string(e.path().join("stat")) else { continue };
+        // "pid (comm) state ppid ...": comm may hold spaces or ')', so read after the last ')'
+        let ppid = stat.rsplit_once(')').and_then(|(_, r)| r.split_whitespace().nth(1)?.parse().ok());
+        if let Some(pp) = ppid { kids.entry(pp).or_default().push(pid) }
+    }
+    let (mut out, mut todo) = (vec![], vec![root]);
+    while let Some(p) = todo.pop() {
+        for &k in kids.get(&p).map(Vec::as_slice).unwrap_or(&[]) {
+            out.push(k);
+            todo.push(k);
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn finds_children_in_their_own_session() {
+        let mut c = std::process::Command::new("sh").args(["-c", "setsid sleep 30 & wait"]).spawn().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        let d = super::descendants(c.id());
+        let found = d.iter().any(|p| std::fs::read_to_string(format!("/proc/{p}/comm")).is_ok_and(|n| n.trim() == "sleep"));
+        let _ = std::process::Command::new("kill").args(d.iter().map(u32::to_string)).status();
+        let _ = c.kill();
+        let _ = c.wait();
+        assert!(found, "{d:?}");
+    }
+
     use super::*;
 
     #[test]
