@@ -13,7 +13,7 @@ Read `research/CLAUDE.md` for the facts behind every rule here: what each skill 
 | `templates/project/` | The skeleton every project starts from. Edit it to change all future projects. |
 | `assets/` | Shared, reusable media: `brand/`, `music/`, `sfx/`, `fonts/`, `footage/`, `images/`. Every file is logged in `assets/LEDGER.md`. |
 | `business/` | Paid work: `leads.md`, `clients/<name>/`. |
-| `channel/` | Own IG + YouTube channel: `profile.md` (niche, viewer, peers), `swipe.md` (outliers), `ideas.md` (scored backlog). Made by `/film-idea-score` on first run. |
+| `channel/` | Own IG + YouTube channel: `profile.md` (niche, viewer, peers), `swipe.md` (outliers), `ideas.md` (scored backlog), `format.md` (45 s reel rules: pace, framing, caption sync). Made by `/film-idea-score` on first run. |
 | `studio/` | Film Studio desktop app (Tauri: Rust `src-tauri/`, TypeScript `src/`). Runs any agent CLI on the pipeline; reads progress from project files; gates via `.studio/gate.json`, handoff via `.studio/handoff.md` (see film-studio "Gates and handoff"). |
 | `bin/` | `studio.sh` (open the app, release build), `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `om.sh` (run one OpenMontage tool), `clean.sh` (stage 9: delete rebuildable bulk). |
 | `.agents/skills/` | Real home of project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |

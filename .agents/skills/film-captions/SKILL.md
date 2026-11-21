@@ -37,6 +37,7 @@ Writes one file: `OUT.mp4`. Use the same path for IN and OUT to caption in place
 - Breaks at sentence ends, pauses over 0.3 s and commas once half a line is used; no 1-2 word orphans.
 - Max on screen: clean/box 3.5 s, karaoke 2.4 s, punch 1.1 s. Back-to-back captions switch with no gap and no fade (no flicker).
 - Size scales with the short side of the frame; vertical gets 12% larger text.
+- Spoken numbers of 10 or more become digits, so a caption matches the number on screen: "forty-two" > 42, "two thousand four hundred" > 2,400, "twenty-four million" > "24 million", "nineteen thirty-nine" > 1939. One to nine stay words ("one in every six"). Check: `captions.py --selftest`.
 
 ## Deliver
 

@@ -111,6 +111,79 @@ def transcribe(video):
         return json.loads(t.read_text())
 
 
+UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve thirteen "
+                                    "fourteen fifteen sixteen seventeen eighteen nineteen".split())}
+TENS = {w: 10 * i for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()) if i > 1}
+
+
+def num_value(tok):
+    """Value of one number word ('forty-two' -> 42, 'hundred' -> 'hundred'), else None."""
+    t = tok.lower().strip(".,?!;:…\"'")
+    if t in ("hundred", "thousand"):
+        return t
+    if t in UNITS:
+        return UNITS[t]
+    if t in TENS:
+        return TENS[t]
+    a, _, b = t.partition("-")
+    return TENS[a] + UNITS[b] if a in TENS and b in UNITS and 0 < UNITS[b] < 10 else None
+
+
+def digits(words):
+    """Spoken numbers of 10 or more become digits, so captions match on-screen numbers.
+    'forty-two' -> '42', 'two thousand four hundred' -> '2,400', 'twenty-four million' -> '24 million',
+    'nineteen thirty-nine' -> '1939'. One to nine stay words ('one in every six'). Merged words keep the
+    first start and last end time. ASR output that is already digits is left alone."""
+    out, i = [], 0
+    while i < len(words):
+        j, total, cur, prev, year = i, 0, 0, None, False
+        while j < len(words) and (v := num_value(words[j]["text"])) is not None:
+            if j > i and re.search(r"[.,?!;:…]$", words[j - 1]["text"]):
+                break                                     # punctuation ends a number
+            if prev is None and isinstance(v, str):
+                break                                     # 'a hundred' stays words
+            if v == "hundred":
+                cur = (cur or 1) * 100
+            elif v == "thousand":
+                total, cur = total + (cur or 1) * 1000, 0
+            elif prev is None or prev in ("hundred", "thousand"):
+                cur += v                                  # shortcut: 'two thousand five' -> 2,005 even when meant as a year; add a year rule if a script needs it
+            elif 10 <= cur <= 99 and v >= 10:
+                cur, year = cur * 100 + v, True           # a year: nineteen thirty-nine
+            elif prev in TENS.values() and v < 10:
+                cur += v                                  # 'forty two' from ASR
+            else:
+                break                                     # 'six seven' is two numbers, not 13
+            prev, j = v, j + 1
+        value, n = total + cur, j - i
+        scale = j < len(words) and words[j]["text"].lower().strip(".,?!;:…") in ("million", "billion", "trillion")
+        if n and (value >= 10 or n > 1 or scale):
+            tail = re.search(r"[.,?!;:…]*$", words[j - 1]["text"]).group()
+            text = str(value) if year else f"{value:,}"
+            out.append({**words[i], "text": text + tail, "end": words[j - 1]["end"]})
+            i = j
+        else:
+            out.append(words[i]); i += 1
+    return out
+
+
+def selftest():
+    w = lambda s: [{"text": t, "start": k, "end": k + 0.5} for k, t in enumerate(s.split())]
+    t = lambda s: " ".join(x["text"] for x in digits(w(s)))
+    assert t("This is America's entire World War Two. Forty-two dots.") == "This is America's entire World War Two. 42 dots."
+    assert t("Two thousand four hundred dots.") == "2,400 dots."
+    assert t("Five hundred sixty. One in every six Poles.") == "560. One in every six Poles."
+    assert t("Twenty-four million people. Fifty-seven Americas.") == "24 million people. 57 Americas."
+    assert t("Sixty million, at least.") == "60 million, at least."
+    assert t("It starts in nineteen thirty-nine, and 1945 ends it.") == "It starts in 1939, and 1945 ends it."
+    assert t("forty two and a hundred") == "42 and a hundred"
+    assert t("Britain? Forty-five.") == "Britain? 45."
+    assert t("no one saw six seven") == "no one saw six seven"
+    m = digits(w("two thousand four hundred"))
+    assert len(m) == 1 and m[0]["start"] == 0 and m[0]["end"] == 3.5
+    print("captions selftest ok")
+
+
 def group(words, style, width, size):
     """Split words into caption events. Breaks on sentence ends, long pauses, and length."""
     if style == "punch":
@@ -249,6 +322,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 
 def main():
+    if sys.argv[1:] == ["--selftest"]:
+        return selftest()
     ap = argparse.ArgumentParser()
     ap.add_argument("inp"); ap.add_argument("out")
     ap.add_argument("--words")
@@ -271,7 +346,7 @@ def main():
         shutil.copy2(inp, clean)
         inp = clean
     words = json.loads(Path(a.words).read_text()) if a.words else transcribe(inp)
-    words = [x for x in words if x.get("text", "").strip()]
+    words = digits([x for x in words if x.get("text", "").strip()])
     if not words:
         sys.exit("no words to caption")
     w, h = probe(inp)

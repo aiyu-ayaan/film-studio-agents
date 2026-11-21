@@ -34,6 +34,7 @@ cat > "$W/speech/plan.json" <<'JSON'
 }
 JSON
 
+python3 "$HERE/../../film-captions/scripts/captions.py" --selftest
 python3 "$HERE/narrate.py" "$W/speech"
 python3 "$HERE/assemble.py" "$W/speech"
 python3 "$HERE/../../film-captions/scripts/captions.py" "$W/speech/renders/final.mp4" "$W/speech/renders/final.captioned.mp4" \
