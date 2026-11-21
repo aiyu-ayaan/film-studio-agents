@@ -137,7 +137,7 @@ function filmPrompt(rel: string, brief: string, o: { speech: boolean; framing: b
   ].filter(Boolean).join("\n");
 }
 
-const GATE_RULES = "Follow \"Gates and handoff\" in the film-studio SKILL.md: at every user gate write .studio/gate.json in the project and end your turn; my answer comes as the next message. Keep .studio/handoff.md current.";
+const GATE_RULES = "Follow \"Gates and handoff\" in the film-studio SKILL.md: at every user gate write .studio/gate.json in the project and end your turn; my answer comes as the next message. Keep .studio/handoff.md current. You run headless: when your turn ends the run ends and every background task or subagent you started is killed. Run renders and scripts in the foreground and wait for them (at most 2 renders at once). Never end your turn while work is still running. End it only at a gate, on a blocking error, or when the film is done.";
 
 /** Prompt for an agent that has no session for this film: restate context, point at the handoff files. */
 function handoffPrompt(user: string) {
@@ -178,7 +178,7 @@ function pictureAndLength() {
   const s = seconds();
   return {
     format: `${w}x${h} at ${fps} fps (set plan.master width ${w}, height ${h}, fps ${fps})`,
-    length: `${fmtTime(s)} (${s} s)`,
+    length: `${fmtTime(s)} (${s} s). Script budget: about ${Math.round(s * 2.5)} spoken words; write to it. After voicing, if vo.wav runs more than 10% over the target, cut lines and re-voice before scenes`,
   };
 }
 function renderFormatHelp() {
@@ -191,7 +191,13 @@ function renderFormatHelp() {
   const s = seconds();
   $("words").textContent = `${fmtTime(s)} · about ${Math.round(s * 2.5)} spoken words`;
 }
-["format", "length", "w", "h", "len-m", "len-s"].forEach((id) => $(id).addEventListener("input", renderFormatHelp));
+// remember the last picture and length choices
+const FMT_IDS = ["format", "fps", "length", "w", "h", "len-m", "len-s"];
+FMT_IDS.forEach((id) => {
+  const v = store.get(`new:${id}`);
+  if (v) $<HTMLInputElement>(id).value = v;
+  $(id).addEventListener("input", () => { store.set(`new:${id}`, $<HTMLInputElement>(id).value); renderFormatHelp(); });
+});
 renderFormatHelp();
 
 function leanRules() {
@@ -561,11 +567,12 @@ $("gate-form").addEventListener("submit", (e) => {
 function renderResume(s: Status) {
   const lr = s.last_run;
   const failed = lr && lr.exit !== 0;
+  const early = lr && lr.exit === 0; // turn ended with no gate and the film not done
   const key = `resume-hidden:${current!.path}:${lr?.started}`;
-  const show = !!failed && !running && !s.gate && store.get(key) !== "1" && s.current < s.stages.length;
+  const show = !!(failed || early) && !running && !s.gate && store.get(key) !== "1" && s.current < s.stages.length;
   $("resume").hidden = !show;
   if (!show) return;
-  const how = lr!.exit == null ? "was interrupted" : `stopped with exit ${lr!.exit}`;
+  const how = early ? "ended its turn before the film was done" : lr!.exit == null ? "was interrupted" : `stopped with exit ${lr!.exit}`;
   const stage = s.stages[s.current]?.label;
   $("resume-text").textContent = `The last run with ${agentLabel(lr!.agent ?? "")} ${how} during ${stage}. Pick any agent in the sidebar and resume: it reads the handoff note and run log, checks the files, and carries on.`;
   $("resume-btn").textContent = `Resume with ${agentSel.selectedOptions[0]?.text ?? "this agent"}`;

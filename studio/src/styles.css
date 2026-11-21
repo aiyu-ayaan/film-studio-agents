@@ -197,14 +197,15 @@ code { font-family: var(--mono); font-size: 0.9em; }
 /* ---------- work area: two panes on shared rows ---------- */
 .work {
   display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr);
-  grid-template-rows: auto minmax(320px, 1fr) auto; column-gap: 24px; row-gap: 12px; flex: 1;
+  /* fixed body row: the log scrolls inside its pane instead of growing the page */
+  grid-template-rows: auto max(360px, calc(100vh - 220px)) auto; column-gap: 24px; row-gap: 12px;
 }
 .pane { display: grid; grid-row: span 3; grid-template-rows: subgrid; min-width: 0; min-height: 0; }
 .pane-head {
   display: flex; align-items: center; gap: 12px; min-height: 44px;
   border-bottom: 1px solid var(--line);
 }
-.pane-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; }
+.pane-body { display: flex; flex-direction: column; gap: 6px; min-height: 0; overflow: hidden; }
 .pane-foot { min-height: 44px; }
 .pane-head h3 { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .run-state { font-size: 13px; color: var(--muted); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
