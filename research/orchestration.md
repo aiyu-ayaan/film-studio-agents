@@ -12,6 +12,8 @@ Researched 2026-11-20. Basis for `.claude/skills/film-studio`, `film-studio-nosp
 | Motionmaxxing | Yes | ElevenLabs only | ElevenLabs only (key needed) | Speech uncaptioned by design |
 | Lemo-Opuscar | Yes | Sampler score | Kokoro / edge-tts | `.srt` |
 | 3DViz | Interactive scene, stills only | No | No | No |
+| Herk Edit Kit (2026-11-21) | 406 HyperFrames cards; edits the user's own footage | Its own picks | `npx hyperframes tts`; ElevenLabs transcription | `short-form-edit` adds its own |
+| OpenMontage (2026-11-21) | Stock footage, grade, reframe (+ paid generators) | Pixabay scrape, Freesound, paid generators | `tts_selector` (cloud TTS, Piper) | `subtitle_gen`, `remotion_caption_burn` |
 
 No skill combines other skills, and most add no spoken story. Built-in voices in this table are excluded by user decision (2026-11-20): only Kokoro and Pocket via `bin/vo.sh`. So film-studio owns script, voice, timing, music, mix and captions; each video skill only makes silent picture for some scenes.
 
@@ -48,4 +50,5 @@ No skill combines other skills, and most add no spoken story. Built-in voices in
 | narrate.py, timing.py, assemble.py, captions.py | Tested by `selftest.sh` with fake clips of mixed size/fps/length, a Kokoro voice, generated music |
 | HyperFrames scene render | Tested: real 2.4 s GSAP scene rendered (`--quality delivery`), assembled, captioned; frame count exact |
 | Shotcraft, Motionmaxxing, Lemo, 3DViz, Remotion adapters | Untested: those skills are not installed |
+| Herk card + OpenMontage footage adapters | Tested 2026-11-21: one card scene and one NASA footage scene passed `scene_check.py` (34% / 0% frozen) and `assemble.py` (330/330 frames) |
 | Pocket TTS through narrate.py | `vo.sh pocket` tested alone; not inside narrate.py |

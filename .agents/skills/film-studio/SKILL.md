@@ -1,6 +1,6 @@
 ---
 name: film-studio
-description: Produce one finished, narrated film by combining several video skills (HyperFrames, Shotcraft, Motionmaxxing, Lemo-Opuscar, 3DViz, Remotion) scene by scene, with a written narration script, local human-sounding voiceover, music bed, SFX, captions and a loudness-checked mix. Default is storytelling with speech. Use for "make a video/film/explainer/promo/story about X" in the Movies studio. For music-only films use film-studio-nospeech.
+description: Produce one finished, narrated film by combining several video skills (HyperFrames, Shotcraft, Motionmaxxing, Lemo-Opuscar, 3DViz, Herk Edit Kit cards, OpenMontage stock footage, Remotion) scene by scene, with a written narration script, local human-sounding voiceover, music bed, SFX, captions and a loudness-checked mix. Default is storytelling with speech. Use for "make a video/film/explainer/promo/story about X" in the Movies studio. For music-only films use film-studio-nospeech.
 argument-hint: "[topic, brief or path to BRIEF.md]"
 ---
 
@@ -26,7 +26,7 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 ### 0. Setup
 - `bin/new-project.sh <slug>`; work inside that folder. Fill `BRIEF.md` from the user's ask: goal, audience, platform, length, aspect, deadline, price.
 - Master format: 1920x1080 at 30 fps unless the platform needs 1080x1920 (Shorts/Reels/TikTok) or 1080x1080.
-- Check which skills are installed (`ls ~/.claude/skills`, `claude plugin list`). Only plan scenes for installed skills. HyperFrames is always available.
+- Check which skills are installed (`ls ~/.claude/skills ~/.local/share/skill-src`, `claude plugin list`). Only plan scenes for installed skills. HyperFrames is always available.
 - Gate: `BRIEF.md` filled, master format decided.
 
 ### 1. Story and script (speech)
@@ -39,14 +39,14 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 
 ### 2. Storyboard and style bible
 - Split the lines into scenes (`scenes[]`, each owns 1+ consecutive `line_ids`). Usually 4-8 s per scene.
-- Pick the skill per scene with the router in the root `CLAUDE.md` and `references/adapters.md`. Use a different skill only where its technique is clearly better (real UI: Shotcraft; idea or kinetic type: Motionmaxxing; painted or documentary look: Lemo; 3D: HyperFrames + Three.js with 3DViz recipes).
+- Pick the skill per scene with the router in the root `CLAUDE.md` and `references/adapters.md`. Use a different skill only where its technique is clearly better (real UI: Shotcraft; idea or kinetic type: Motionmaxxing; painted or documentary look: Lemo; 3D: HyperFrames + Three.js with 3DViz recipes; real places and events: OpenMontage footage; editorial section, stat, quote or list beats: Herk cards).
 - Write `style.md`: one palette (hex), two fonts, type scale, grain, safe zones (keep on-screen text out of the bottom 20% when captions are on), caption style + accent. Every scene uses it. One look per film; skills vary technique, not identity.
 - Fill `scenes[].recipe` for every scene: follow "Recipe" in `references/adapters.md` (base engine by film type, blueprint, registry blocks, camera move, precedent, shot card, Lemo style, 3DViz record). Run the searches; do not invent ids.
 - Write `STORYBOARD.md`: per scene, what is on screen, the line it carries, skill, recipe, transition (default: hard cut on motion).
 - Gate: `python3 .claude/skills/film-studio/scripts/scene_check.py <project> --recipes-only` exits 0; style.md exists; user approved (G1).
 
 ### 3. Voice and timing (locks scene lengths)
-- Voice is Kokoro or Pocket TTS only, through narrate.py. Never use a skill's or library's built-in voice (HeyGen, ElevenLabs, Lemo's TTS, Motionmaxxing `voice.py`, ...).
+- Voice is Kokoro or Pocket TTS only, through narrate.py. Never use a skill's or library's built-in voice (HeyGen, ElevenLabs, Lemo's TTS, Motionmaxxing `voice.py`, OpenMontage TTS, Herk `hyperframes tts`, ...).
 - `plan.master.voice_engine` (`kokoro` or `pocket`): if empty, ask the user once which they chose after the ear test (`research/tts-audition/`). Never default silently.
 - Run `python3 .claude/skills/film-studio/scripts/narrate.py <project>`. It voices each line, joins them with gaps, transcribes the result, checks every line against the script, and writes frame-exact scene lengths into plan.json.
 - Exit 3 = a line was misread. Rewrite that line's text (spelling, punctuation) and rerun with `--only <id>`. Kokoro gives the same take for the same text, so change the text or the voice, not just retry.
@@ -82,7 +82,7 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - Gate: the user has seen the film. Iterate: change a scene > re-render that clip > rerun assemble.py (narration is reused).
 
 ### 8. Deliver
-- Fill `NOTE.md`: skills + commits, voice engine, every third-party asset with licence, music credit (Lemo `credits()` lines, Kyutai for Pocket TTS), qa.json numbers.
+- Fill `NOTE.md`: skills + commits, voice engine, every third-party asset with licence (each OpenMontage clip: source URL + licence; CC BY credit lines), music credit (Lemo `credits()` lines, Kyutai for Pocket TTS), qa.json numbers.
 - Other aspects: re-render scenes at the new size (padding is a fallback, not a delivery).
 - YouTube: disclose realistic synthetic voice; vary style per video (`research/monetization.md`).
 

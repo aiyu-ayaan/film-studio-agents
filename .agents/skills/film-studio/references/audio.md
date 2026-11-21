@@ -19,6 +19,7 @@ Take the first that fits:
 | 4 | Mixkit tracks bundled with Shotcraft (`cat-walk`, `house-vibez`, ...) | Mixkit free licence: verify on mixkit.co before paid use | `bgm-tech-house.mp3` source unknown: never |
 
 Never: MusicGen-small (`facebook/musicgen-small`, CC-BY-NC 4.0), the offline fallback of `/media-use` and faceless-explainer's `audio.mjs`. So do not let those scripts make the music.
+Not for paid work: OpenMontage `pixabay_music` (scrapes Pixabay; Content ID claims on YouTube) and `freesound_music` (mixes CC-BY-NC with CC0/CC-BY). Its music generators are paid APIs: ask first.
 Later (needs a bigger GPU): ACE-Step v1 3.5B (Apache-2.0).
 Today (2026-11-20) Lemo is not installed: music means #1 until it is.
 

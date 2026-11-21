@@ -13,10 +13,22 @@ import argparse, json, re, subprocess, sys
 from pathlib import Path
 
 S = Path.home() / ".claude/skills"
-EXISTS = {  # recipe ids that must name a real file, so ids cannot be invented
-    "blueprint": lambda v: (S / "hyperframes-animation/blueprints" / f"{v}.md").exists(),
-    "style": lambda v: (Path.home() / "lemo-opuscar/styles" / v / "STYLE.md").exists(),
-    "shot_card": lambda v: any((S / "video-shotcraft/demos").glob(f"*/{v}")),
+HERK = Path.home() / ".local/share/skill-src/herk-edit-kit"
+
+
+def herk_cards():
+    reg = HERK / "style-library/registry.json"
+    if not reg.exists():
+        return set()
+    return {c["id"] for st in json.loads(reg.read_text())["styles"] for c in st["cards"]}
+
+
+EXISTS = {  # recipe ids that must name a real file, so ids cannot be invented. (value, project) -> bool
+    "blueprint": lambda v, p: (S / "hyperframes-animation/blueprints" / f"{v}.md").exists(),
+    "style": lambda v, p: (Path.home() / "lemo-opuscar/styles" / v / "STYLE.md").exists(),
+    "shot_card": lambda v, p: any((S / "video-shotcraft/demos").glob(f"*/{v}")),
+    "card": lambda v, p: v in herk_cards(),
+    "footage": lambda v, p: (p / v).is_file(),  # a downloaded clip inside the project; licence goes in NOTE.md
 }
 
 NEED = {  # recipe keys a scene must name, by skill family
@@ -26,6 +38,8 @@ NEED = {  # recipe keys a scene must name, by skill family
     "lemo-opuscar": ["style"],
     "3dviz": ["record", "camera"],
     "remotion": ["camera"],
+    "herk": ["card", "camera"],
+    "openmontage": ["footage", "camera"],
 }
 
 
@@ -69,7 +83,7 @@ def check(proj, sc, m, recipes_only, max_frozen, last=False):
     if miss:
         bad.append(f"recipe missing {miss} for {fam}")
     for k, ok in EXISTS.items():
-        if rec.get(k) and not ok(rec[k]):
+        if rec.get(k) and not ok(rec[k], proj):
             bad.append(f"recipe {k}={rec[k]!r} not found in the installed skill")
     if recipes_only:
         return bad

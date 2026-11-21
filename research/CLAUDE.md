@@ -15,6 +15,8 @@ The skill registry (job to skill) lives only in `../CLAUDE.md`. This folder hold
 | `skills/3dviz-pro-max.md` | 3DViz Pro Max: Three.js 3D scenes. |
 | `skills/earshot.md` | Earshot: listen, critique, and make SFX in code. |
 | `skills/lemo-opuscar.md` | Lemo-Opuscar: 99 film styles in code. |
+| `skills/herk-edit-kit.md` | Herk Edit Kit: edit the user's own footage; 406 HyperFrames explainer cards (2026-11-21). |
+| `skills/openmontage.md` | OpenMontage (AGPL-3.0): real stock footage with licences, grade, reframe, via `bin/om.sh` (2026-11-21). |
 | `tts.md` | Voice decision (Kokoro + Pocket only), benchmarks, rules for a human-sounding voice. |
 | `tts-audition/` | Same line rendered per engine, to judge by ear. |
 | `licenses.md` | One table: can I sell what this makes? Action items. |

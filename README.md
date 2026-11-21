@@ -44,7 +44,7 @@ Before making a channel video, score the idea: `/film-idea-score "idea"`. Narrat
 
 `story + script` > `storyboard + recipe per scene` (you approve) > `voice + timing` > `scenes` > `music + SFX` > `assemble` > `captions` > `review` > `deliver`.
 
-Every scene carries a `recipe` in `plan.json`: the blueprint, registry blocks, camera move, shot card, Lemo style or 3D record it uses. `scene_check.py` refuses a scene with a missing or invented recipe, a wrong size, or more than 40% frozen frames.
+Every scene carries a `recipe` in `plan.json`: the blueprint, registry blocks, camera move, shot card, Lemo style, 3D record, Herk card or OpenMontage footage clip it uses. `scene_check.py` refuses a scene with a missing or invented recipe, a wrong size, or more than 40% frozen frames.
 
 ## Full flow
 
@@ -98,7 +98,7 @@ Personal folders (`business/`, `channel/`, `assets/brand/<name>/`) stay local. R
 
 - Machine used: 8 cores, 31 GB RAM, GTX 1650, ffmpeg 7, Chrome, Node, Python 3.11/3.12 via `uv`.
 - Python env: `.venv/` with kokoro-onnx, pocket-tts and CPU torch (see `research/tts.md`).
-- Install the video skills: `bin/setup-skills.sh all` (HyperFrames, Shotcraft, Motionmaxxing, 3DViz, Earshot, Lemo-Opuscar, Remotion). They install into `~/.claude/`, not this repo.
+- Install the video skills: `bin/setup-skills.sh all` (HyperFrames, Shotcraft, Motionmaxxing, 3DViz, Earshot, Lemo-Opuscar, Remotion, Herk Edit Kit, OpenMontage). They install into `~/.claude/` or `~/.local/share/skill-src/`, not this repo.
 - Every `npx hyperframes` command needs `export HYPERFRAMES_CACHE_DIR=$HOME/.local/share/hyperframes-cache`.
 - Self-test of the film scripts (about 35 s): `.agents/skills/film-studio/scripts/selftest.sh`.
 - Self-test of the idea scorer: `python3 .agents/skills/film-idea-score/scripts/score.py --selftest`.

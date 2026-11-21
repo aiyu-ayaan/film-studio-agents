@@ -15,13 +15,13 @@ Read `research/CLAUDE.md` for the facts behind every rule here: what each skill 
 | `business/` | Paid work: `leads.md`, `clients/<name>/`. |
 | `channel/` | Own IG + YouTube channel: `profile.md` (niche, viewer, peers), `swipe.md` (outliers), `ideas.md` (scored backlog). Made by `/film-idea-score` on first run. |
 | `studio/` | Film Studio desktop app (Tauri: Rust `src-tauri/`, TypeScript `src/`). Runs any agent CLI on the pipeline; reads progress from project files; gates via `.studio/gate.json`, handoff via `.studio/handoff.md` (see film-studio "Gates and handoff"). |
-| `bin/` | `studio.sh` (open the app, release build), `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `clean.sh` (stage 9: delete rebuildable bulk). |
+| `bin/` | `studio.sh` (open the app, release build), `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `om.sh` (run one OpenMontage tool), `clean.sh` (stage 9: delete rebuildable bulk). |
 | `.agents/skills/` | Real home of project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |
 
 ## Skill registry (router)
 
 Pick the skill by the job. This mapping is our design choice, not something the repos state.
-Install state checked 2026-11-20 (all 7 present). Run `bin/setup-skills.sh <name>` to install one.
+Install state checked 2026-11-21 (all 9 present). Herk and OpenMontage live in `~/.local/share/skill-src/` (not symlinked: see their cards). Run `bin/setup-skills.sh <name>` to install one.
 
 | Job | Skill (invoke) | Engine | Card | Commercial use | Installed |
 |---|---|---|---|---|---|
@@ -36,6 +36,9 @@ Install state checked 2026-11-20 (all 7 present). Run `bin/setup-skills.sh <name
 | Narrated film in a named look (99 styles: watercolor, news, chalkboard...) | Lemo-Opuscar (`/lemo-opuscar:lemo-opuscar`) | canvas/WebGL frame render | `research/skills/lemo-opuscar.md` | Films yes; style docs CC BY-NC | Yes, user plugin (library downloads on first use) |
 | 3D hero scene, STEM/3D explainer, explorable world | 3DViz Pro Max (`/3dviz-pro-max`) | Three.js (+ Blender) | `research/skills/3dviz-pro-max.md` | Yes (MIT) | Yes, global symlink |
 | Sound: pick/make SFX, check sync and loudness, critique the mix | Earshot (`earshot` CLI / MCP) | Python, CPU | `research/skills/earshot.md` | Yes (MIT) | Yes, CLI + MCP (skill files not installed) |
+| Edit the user's own recording: cut silences and mistakes, long-form edit, 9:16 reel from their footage | Herk Edit Kit (`cut-silences`, `cut-mistakes`, `edit-video`, `short-form-edit`; run by absolute path) | Node + ffmpeg, HyperFrames | `research/skills/herk-edit-kit.md` | Yes (MIT + use permission); AIS brand excluded | Yes, `~/.local/share/skill-src/herk-edit-kit` (2026-11-21) |
+| Editorial explainer card scene (section, stat, quote, list, lower third): 406 cards | Herk Edit Kit `style-library` (recipe key `card`) | HyperFrames + GSAP | `research/skills/herk-edit-kit.md` | Yes | Yes, same clone |
+| Real stock footage scene (NASA, Wikimedia, Archive.org, Openverse, LoC), colour grade, reframe to 9:16, shot detection | OpenMontage tools via `bin/om.sh` (recipe key `footage`) | Python + ffmpeg, separate process | `research/skills/openmontage.md` | Videos yes; code AGPL-3.0: never copy or import it here | Yes, `~/.local/share/skill-src/OpenMontage` (2026-11-21) |
 | React video only when the user or client asks for Remotion | Remotion (`/remotion-create`) | Remotion | `research/skills/remotion.md` | Yes for individual or <=3 employees | Yes, project skills in `Movies/.claude/skills` |
 
 Routing rules:
@@ -43,6 +46,8 @@ Routing rules:
 - Captions only through `/film-captions`. Other skills' caption features stay off.
 - The global `hyperframes` skill calls itself the mandatory entry point. In this folder, use the table above first. Use HyperFrames when no row fits better.
 - Earshot runs on every film before delivery (see "Quality gate").
+- Footage the user recorded (not a film we write and voice) goes to Herk Edit Kit; finish with `/film-captions` and the quality gate. A film-studio film can still use a Herk card scene or an OpenMontage footage scene.
+- OpenMontage runs only through `bin/om.sh` (AGPL-3.0: keep it a separate program). Never use its TTS, avatar, caption, assembly or `video_downloader` tools.
 - Do not add `video-talkcraft`: its licence (PolyForm Noncommercial) forbids paid use.
 
 ## Add a new skill
@@ -64,7 +69,7 @@ Self-test of the scripts: `.claude/skills/film-studio/scripts/selftest.sh` (abou
 
 **Only two voices are allowed: Kokoro-82M and Pocket TTS, always made with `bin/vo.sh` (or `narrate.py`, which calls it).**
 Built-in voices of every skill and library are excluded, even when a skill picks one by default:
-HyperFrames `/media-use` and faceless-explainer `audio.mjs` (HeyGen, ElevenLabs, Gemini voices), Motionmaxxing `voice.py` (ElevenLabs, macOS `say`), Lemo-Opuscar `core/tts` (its own Kokoro and edge-tts), Remotion `@remotion/elevenlabs`, KittenTTS, VoiceStudio, and any cloud TTS.
+HyperFrames `/media-use` and faceless-explainer `audio.mjs` (HeyGen, ElevenLabs, Gemini voices), Motionmaxxing `voice.py` (ElevenLabs, macOS `say`), Lemo-Opuscar `core/tts` (its own Kokoro and edge-tts), Remotion `@remotion/elevenlabs`, Herk Edit Kit `npx hyperframes tts` and `transcribe-elevenlabs.mjs` (uploads audio), OpenMontage `tts_selector`, every `*_tts` tool and Piper, KittenTTS, VoiceStudio, and any cloud TTS.
 When a skill reaches its voice step, skip it and give it our wav from `audio/vo/`.
 
 | Engine | Use | Speed on this PC | Command |
