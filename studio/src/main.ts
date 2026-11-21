@@ -310,6 +310,8 @@ $("stop").addEventListener("click", () => invoke("stop_agent"));
 
 function send(text: string) {
   if (!text || running || !current) return;
+  // any answer closes an open gate, whichever box it was typed in
+  if (current.status.gate) invoke("clear_gate", { dir: current.path }).catch(() => {});
   addLine({ kind: "info", text: `You: ${text}` });
   // same agent as the last run and a session to resume: just send. Otherwise hand over with context.
   const hasSession = !!store.get(`session:${current.path}:${agentSel.value}`);
@@ -656,8 +658,13 @@ tabs.forEach((t, i) => {
 $("open-video").addEventListener("click", () => playing && invoke("open_path", { path: playing }));
 $("open-folder").addEventListener("click", () => current && invoke("open_path", { path: current.path }).catch((e) => toast(String(e))));
 
+let lastSeen = "";
 async function refresh() {
   projects = await invoke<Project[]>("list_projects");
+  // re-rendering rebuilds buttons and drops focus and scroll: only do it when something changed
+  const seen = JSON.stringify([projects, current?.path, running]);
+  if (seen === lastSeen) return;
+  lastSeen = seen;
   if (current) {
     const prev = current.status.current;
     current = projects.find((p) => p.path === current!.path) ?? current;

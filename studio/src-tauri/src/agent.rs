@@ -111,7 +111,8 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
             push("exec");
             if let Some(id) = session { push("resume"); push(id) }
             for s in ["--json", "--skip-git-repo-check"] { push(s) }
-            if !model.is_empty() { push("-m"); push(model) }
+            // -c works on both `exec` and `exec resume` (resume has no -m)
+            if !model.is_empty() { push("-c"); push(&format!("model=\"{model}\"")) }
             if !effort.is_empty() { push("-c"); push(&format!("model_reasoning_effort=\"{effort}\"")) }
             match level {
                 2 => push("--dangerously-bypass-approvals-and-sandbox"),
@@ -119,7 +120,9 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
                 _ => { push("-c"); push("sandbox_mode=\"read-only\"") }
             }
             if lean {
-                for s in ["-c", "mcp_servers.chrome-devtools.enabled=false", "-c", "mcp_servers.codegraph.enabled=false"] { push(s) }
+                // only servers defined in ~/.codex/config.toml can be switched off this way;
+                // naming an undefined one (chrome-devtools comes from a plugin) breaks config loading
+                for s in ["-c", "mcp_servers.codegraph.enabled=false"] { push(s) }
             }
             push(prompt);
         }
@@ -347,9 +350,15 @@ pub fn start_agent(
     *slot = Some(child);
 
     let a2 = app.clone();
+    let log_err = log.clone();
     std::thread::spawn(move || {
         for line in BufReader::new(err).lines().map_while(Result::ok) {
             if !line.trim().is_empty() {
+                // failure reasons often come on stderr; keep them for whoever takes over
+                if let Some(f) = log_err.lock().unwrap().as_mut() {
+                    use std::io::Write;
+                    let _ = writeln!(f, "{line}");
+                }
                 let _ = a2.emit("agent-line", Line { kind: "raw", text: line });
             }
         }
@@ -393,12 +402,21 @@ pub fn start_agent(
 
 #[tauri::command]
 pub fn stop_agent(runner: State<Runner>) -> Result<(), String> {
-    if let Some(c) = runner.child.lock().unwrap().as_mut() {
-        #[cfg(unix)]
-        let _ = Command::new("kill").args(["-TERM", "--", &format!("-{}", c.id())]).status();
-        let _ = c.kill();
-    }
+    runner.kill();
     Ok(())
+}
+
+impl Runner {
+    /// Kill the agent and everything it started (its own process group).
+    pub fn kill(&self) {
+        if let Some(c) = self.child.lock().unwrap().as_mut() {
+            if c.try_wait().ok().flatten().is_none() {
+                #[cfg(unix)]
+                let _ = Command::new("kill").args(["-TERM", "--", &format!("-{}", c.id())]).status();
+                let _ = c.kill();
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -417,7 +435,7 @@ mod tests {
         }
         let r = build_args("codex", "hi", Some("abc"), 1, false, "gpt-x", "high").join(" ");
         assert!(r.starts_with("exec resume abc --json"));
-        assert!(r.contains("-m gpt-x -c model_reasoning_effort=\"high\""));
+        assert!(r.contains("-c model=\"gpt-x\" -c model_reasoning_effort=\"high\""));
         assert!(build_args("claude", "hi", None, 1, false, "opus", "low").join(" ").starts_with("--model opus --effort low -p"));
     }
 

@@ -150,6 +150,12 @@ pub fn run() {
             agent::start_agent,
             agent::stop_agent,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app, ev| {
+            // the agent runs in its own process group, so it would outlive the app
+            if let tauri::RunEvent::Exit = ev {
+                app.state::<agent::Runner>().kill();
+            }
+        });
 }

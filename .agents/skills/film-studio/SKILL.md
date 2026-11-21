@@ -9,7 +9,7 @@ argument-hint: "[topic, brief or path to BRIEF.md]"
 You are the director. Each video skill builds some scenes. You own the story, the voice, the timing, the sound and the final cut.
 The video skills make picture only (some add music); none of them writes and voices a story. That is this skill's job.
 
-Paths below are relative to the studio root `/media/aiyu/550E85595197DBEC/Personal/Movies`. Scripts: `.claude/skills/film-studio/scripts/`.
+Paths below are relative to the repo root (the folder holding `CLAUDE.md`). Scripts: `.claude/skills/film-studio/scripts/`.
 Read before starting: `references/plan.md` (plan.json, the single source of truth). Read the others at their stage.
 
 ## Modes
@@ -94,7 +94,7 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 
 The Studio app (`studio/`) runs this skill headless with Claude Code, Codex, Antigravity or another agent, and lets the user switch agent mid-film. Two files in `<project>/.studio/` make that work. Write them whatever tool you are.
 - `handoff.md`: overwrite after every stage gate passes and before you stop for any reason. At most 30 lines: stage reached, what is done (files), decisions made (voice engine and voice, captions style, approvals given), next step, open problems. Another agent starts from this note, so write facts, not plans you have not checked.
-- `gate.json`: at a user gate (G1, voice choice, review sign-off, or any question only the user can answer), write `{"gate": "G1", "question": "<one sentence>", "files": ["script.md", "STORYBOARD.md"], "options": ["Approve", "<other choice>"]}` (`files` relative to the project, `options` optional), update `handoff.md`, then end your turn without waiting. The user's answer arrives as the next message; the app deletes `gate.json`.
+- `gate.json`: at a user gate (G1, voice choice, review sign-off, or any question only the user can answer), write `{"gate": "G1", "question": "<one sentence>", "files": ["script.md", "STORYBOARD.md"], "options": ["Approve", "<other choice>"]}` (`files` relative to the project, `options` optional), update `handoff.md`, then end your turn without waiting. The user's answer arrives as the next message. When you have it, delete `gate.json` (the app also deletes it).
 - Taking over from another agent: read `handoff.md` and the end of `.studio/run.log`, check the files on disk, then continue from the first stage whose gate does not pass. Never redo a stage that passes.
 
 ## Quality bar (best possible picture)

@@ -6,7 +6,7 @@ argument-hint: "[topic, brief or path to BRIEF.md]"
 
 # film-studio-nospeech
 
-Read and follow `/media/aiyu/550E85595197DBEC/Personal/Movies/.claude/skills/film-studio/SKILL.md` and its `references/`. Everything there applies, with these differences only:
+Read and follow `.claude/skills/film-studio/SKILL.md` (repo root) and its `references/`. Everything there applies, with these differences only:
 
 | Stage | Change |
 |---|---|

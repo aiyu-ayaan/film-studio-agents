@@ -6,7 +6,7 @@ argument-hint: "[video path] [style]"
 
 # film-captions
 
-The only skill in this studio that puts captions on a video. Script: `.claude/skills/film-captions/scripts/captions.py` (paths from `/media/aiyu/550E85595197DBEC/Personal/Movies`).
+The only skill in this studio that puts captions on a video. Script: `.claude/skills/film-captions/scripts/captions.py` (paths from the repo root, the folder holding `CLAUDE.md`).
 
 ## Steps
 
