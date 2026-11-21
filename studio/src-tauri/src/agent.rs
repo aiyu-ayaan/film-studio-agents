@@ -64,11 +64,34 @@ pub fn list_agents() -> Vec<AgentInfo> {
         .collect()
 }
 
+/// Model choices per agent. Claude takes aliases; Antigravity lists its own; Codex is free text.
+#[tauri::command]
+pub fn list_models(agent: String) -> Vec<(String, String)> {
+    match agent.as_str() {
+        "claude" => [("fable", "Fable (latest)"), ("opus", "Opus (latest)"), ("sonnet", "Sonnet (latest)"), ("haiku", "Haiku (latest)")]
+            .iter().map(|(a, b)| (a.to_string(), b.to_string())).collect(),
+        "agy" => find_bin("agy")
+            .and_then(|b| Command::new(b).arg("models").stdin(Stdio::null()).output().ok())
+            .map(|o| String::from_utf8_lossy(&o.stdout).lines()
+                .filter_map(|l| l.split_once('\t')).map(|(a, b)| (a.to_string(), b.to_string())).collect())
+            .unwrap_or_default(),
+        _ => vec![],
+    }
+}
+
 /// Argument list for one turn. `level`: 0 read only, 1 guarded, 2 full access.
 /// `lean`: drop context the film pipeline never uses (MCP servers other than earshot).
-fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean: bool) -> Vec<String> {
+fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean: bool, model: &str, effort: &str) -> Vec<String> {
     let mut a: Vec<String> = Vec::new();
     let mut push = |s: &str| a.push(s.to_string());
+    // model / effort: empty = the CLI's own default
+    match agent {
+        "claude" | "agy" => {
+            if !model.is_empty() { push("--model"); push(model) }
+            if !effort.is_empty() { push("--effort"); push(effort) }
+        }
+        _ => {}
+    }
     match agent {
         "claude" => {
             for s in ["-p", "--output-format", "stream-json", "--verbose"] { push(s) }
@@ -88,6 +111,8 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
             push("exec");
             if let Some(id) = session { push("resume"); push(id) }
             for s in ["--json", "--skip-git-repo-check"] { push(s) }
+            if !model.is_empty() { push("-m"); push(model) }
+            if !effort.is_empty() { push("-c"); push(&format!("model_reasoning_effort=\"{effort}\"")) }
             match level {
                 2 => push("--dangerously-bypass-approvals-and-sandbox"),
                 1 => { push("-c"); push("sandbox_mode=\"workspace-write\"") }
@@ -114,6 +139,46 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
 }
 
 const EARSHOT_ONLY: &str = r#"{"mcpServers":{"earshot":{"command":"earshot","args":["mcp"]}}}"#;
+
+/// Model ids are passed as argv, never through a shell; still refuse odd characters.
+fn clean_opt(v: &Option<String>) -> &str {
+    match v.as_deref().map(str::trim) {
+        Some(s) if s.chars().all(|c| c.is_ascii_alphanumeric() || "-._:/[]".contains(c)) => s,
+        _ => "",
+    }
+}
+
+#[derive(serde::Serialize, Clone, Default, PartialEq, Debug)]
+struct Usage {
+    input: u64,
+    cached: u64,
+    output: u64,
+    cost: Option<f64>,
+}
+
+/// Token use from each agent's end-of-turn line.
+fn usage_of(v: &Value) -> Option<Usage> {
+    let n = |x: &Value| x.as_u64().unwrap_or(0);
+    if v["type"] == "result" {
+        let u = &v["usage"];
+        return Some(Usage {
+            input: n(&u["input_tokens"]) + n(&u["cache_creation_input_tokens"]),
+            cached: n(&u["cache_read_input_tokens"]),
+            output: n(&u["output_tokens"]),
+            cost: v["total_cost_usd"].as_f64(),
+        });
+    }
+    if v["type"] == "turn.completed" {
+        let u = &v["usage"];
+        let cached = n(&u["cached_input_tokens"]);
+        return Some(Usage { input: n(&u["input_tokens"]).saturating_sub(cached), cached, output: n(&u["output_tokens"]), cost: None });
+    }
+    if v["event"] == "result" {
+        let u = &v["result"]["usage"];
+        return Some(Usage { input: n(&u["input_tokens"]), cached: n(&u["cache_read_tokens"]), output: n(&u["output_tokens"]), cost: None });
+    }
+    None
+}
 
 #[derive(serde::Serialize, Clone)]
 struct Line {
@@ -204,6 +269,8 @@ pub fn start_agent(
     session: Option<String>,
     level: u8,
     lean: bool,
+    model: Option<String>,
+    effort: Option<String>,
     custom_cmd: Option<String>,
 ) -> Result<String, String> {
     let mut slot = runner.child.lock().unwrap();
@@ -227,7 +294,8 @@ pub fn start_agent(
     } else {
         let bin_name = AGENTS.iter().find(|a| a.0 == agent).ok_or("Unknown agent.")?.2;
         let bin = find_bin(bin_name).ok_or(format!("`{bin_name}` was not found on PATH or in ~/.local/bin."))?;
-        let args = build_args(&agent, &prompt, session.as_deref(), level.min(2), lean);
+        let args = build_args(&agent, &prompt, session.as_deref(), level.min(2), lean,
+            clean_opt(&model), clean_opt(&effort));
         let mut c = Command::new(&bin);
         c.args(&args);
         let shown_args: Vec<String> = args[..args.len() - 1].to_vec(); // hide the long prompt
@@ -268,6 +336,9 @@ pub fn start_agent(
                     sent_session = true;
                 }
             }
+            if let Some(u) = serde_json::from_str::<Value>(&line).ok().as_ref().and_then(usage_of) {
+                let _ = app.emit("agent-usage", u);
+            }
             if let Some(l) = readable(&line) {
                 let _ = app.emit("agent-line", l);
             }
@@ -296,13 +367,15 @@ mod tests {
     fn full_access_only_at_level_2() {
         for agent in ["claude", "codex", "agy"] {
             for level in 0..=2u8 {
-                let a = build_args(agent, "hi", None, level, true).join(" ");
+                let a = build_args(agent, "hi", None, level, true, "", "").join(" ");
                 assert_eq!(a.contains("dangerously"), level == 2, "{agent} {level}: {a}");
                 assert!(a.ends_with("hi"));
             }
         }
-        let r = build_args("codex", "hi", Some("abc"), 1, false).join(" ");
+        let r = build_args("codex", "hi", Some("abc"), 1, false, "gpt-x", "high").join(" ");
         assert!(r.starts_with("exec resume abc --json"));
+        assert!(r.contains("-m gpt-x -c model_reasoning_effort=\"high\""));
+        assert!(build_args("claude", "hi", None, 1, false, "opus", "low").join(" ").starts_with("--model opus --effort low -p"));
     }
 
     #[test]
@@ -315,5 +388,9 @@ mod tests {
         assert_eq!(readable(g).unwrap().kind, "delta");
         assert_eq!(session_of(&serde_json::from_str(r#"{"event":"init","conversation_id":"z"}"#).unwrap()), Some("z".into()));
         assert_eq!(readable("plain text").unwrap().kind, "raw");
+        let r: Value = serde_json::from_str(r#"{"type":"result","total_cost_usd":0.5,"usage":{"input_tokens":2,"cache_creation_input_tokens":8,"cache_read_input_tokens":100,"output_tokens":4}}"#).unwrap();
+        assert_eq!(usage_of(&r), Some(Usage { input: 10, cached: 100, output: 4, cost: Some(0.5) }));
+        let r: Value = serde_json::from_str(r#"{"type":"turn.completed","usage":{"input_tokens":50,"cached_input_tokens":20,"output_tokens":5}}"#).unwrap();
+        assert_eq!(usage_of(&r).unwrap().input, 30);
     }
 }

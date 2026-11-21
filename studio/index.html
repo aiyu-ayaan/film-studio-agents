@@ -12,6 +12,10 @@
       <aside class="side" aria-label="Films and agent">
         <h1 class="brand">Film Studio</h1>
         <button id="new-film" class="btn primary" type="button">New film</button>
+        <label class="field search">
+          <span class="sr">Find a film</span>
+          <input id="filter" type="search" placeholder="Find a film" />
+        </label>
         <nav aria-label="Films">
           <ul id="projects" class="projects"></ul>
         </nav>
@@ -26,6 +30,27 @@
             <span>Command (prompt is in <code>$PROMPT</code>)</span>
             <input id="custom-cmd" type="text" spellcheck="false" placeholder='my-agent --print "$PROMPT"' />
           </label>
+          <div class="pair" id="model-wrap">
+            <label class="field">
+              <span>Model</span>
+              <select id="model-pick"></select>
+            </label>
+            <label class="field" id="model-other-wrap" hidden>
+              <span>Model id</span>
+              <input id="model" spellcheck="false" placeholder="e.g. gpt-5.5" />
+            </label>
+            <label class="field">
+              <span>Effort</span>
+              <select id="effort">
+                <option value="">Default</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="xhigh">Extra high</option>
+                <option value="max">Max</option>
+              </select>
+            </label>
+          </div>
 
           <fieldset class="perm">
             <legend>What the agent may do</legend>
@@ -55,13 +80,32 @@
           <form id="new-form" class="form">
             <label class="field">
               <span>Folder name</span>
-              <input id="slug" required pattern="[a-z0-9-]{1,60}" placeholder="history-of-c" spellcheck="false" />
+              <input id="slug" required pattern="[a-z0-9\-]{1,60}" placeholder="history-of-c" spellcheck="false" />
               <small class="help">Lowercase letters, digits and dashes. Today's date is added in front.</small>
             </label>
             <label class="field">
               <span>What is the film about?</span>
               <textarea id="brief" required rows="6" placeholder="A 3 minute YouTube explainer on the history of C: why it was made, what it is, where it runs, and where it stands today."></textarea>
             </label>
+            <div class="row">
+              <label class="field grow">
+                <span>Format</span>
+                <select id="format">
+                  <option value="1920x1080">Landscape 1920×1080 (YouTube)</option>
+                  <option value="1080x1920">Vertical 1080×1920 (Shorts, Reels, TikTok)</option>
+                  <option value="1080x1080">Square 1080×1080</option>
+                </select>
+              </label>
+              <label class="field grow">
+                <span>Length</span>
+                <select id="length">
+                  <option value="about 60 seconds">About 1 minute</option>
+                  <option value="about 3 minutes" selected>About 3 minutes</option>
+                  <option value="about 5 minutes">About 5 minutes</option>
+                  <option value="about 10 minutes">About 10 minutes</option>
+                </select>
+              </label>
+            </div>
             <div class="row">
               <label class="check"><input id="speech" type="checkbox" checked /><span>Narrated<small>Off: no voice, cut to music.</small></span></label>
               <label class="check" id="framing-wrap"><input id="framing" type="checkbox" /><span>Intro and chapter bridges<small>Adds an opening and a short bridge between topics, so sections don't switch abruptly.</small></span></label>
@@ -77,41 +121,74 @@
         <!-- project view -->
         <section id="film-view" class="film" hidden>
           <header class="film-head">
-            <h2 id="film-title" class="title"></h2>
-            <p id="film-meta" class="meta"></p>
+            <div>
+              <h2 id="film-title" class="title"></h2>
+              <p id="film-meta" class="meta"></p>
+            </div>
+            <dl id="facts" class="facts"></dl>
           </header>
 
           <div class="leader-wrap">
-            <ol id="leader" class="leader" aria-label="Pipeline stages"></ol>
+            <ol id="leader" class="leader" aria-label="Pipeline stages. Pick one to see its checks."></ol>
             <div class="bar" role="progressbar" id="bar" aria-valuemin="0" aria-valuemax="100" aria-label="Film progress">
               <div class="bar-fill" id="bar-fill"></div>
             </div>
-            <p id="stage-line" class="stage-line"></p>
+            <div class="stage-detail" id="stage-detail" aria-live="polite"></div>
           </div>
 
           <div class="work">
             <section class="log-pane" aria-labelledby="log-h">
               <div class="pane-head">
                 <h3 id="log-h">Agent output</h3>
-                <span id="run-state" class="run-state" role="status"></span>
+                <div class="chips" role="group" aria-label="Show">
+                  <button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>
+                  <button type="button" class="chip" data-filter="text" aria-pressed="false">Messages</button>
+                  <button type="button" class="chip" data-filter="tool" aria-pressed="false">Actions</button>
+                </div>
+                <button type="button" class="link" id="copy-log">Copy</button>
               </div>
-              <div id="log" class="log" role="log" aria-live="polite"></div>
+              <div class="runbar">
+                <span id="run-state" class="run-state" role="status"></span>
+                <span id="usage" class="usage" title="Tokens used by the agent in this app, for this film"></span>
+              </div>
+              <div id="log" class="log" role="log" aria-live="polite" data-filter="all">
+                <p class="empty-log">Nothing yet. Start a film or send a message, and the agent's work shows up here.</p>
+              </div>
               <form id="reply-form" class="reply">
                 <label class="sr" for="reply">Message to the agent</label>
-                <textarea id="reply" rows="2" placeholder="Approve the storyboard, answer a question, or ask for a change"></textarea>
+                <textarea id="reply" rows="2" placeholder="Approve the storyboard, answer a question, or ask for a change (Ctrl+Enter sends)"></textarea>
                 <button id="send" class="btn primary" type="submit">Send</button>
                 <button id="stop" class="btn danger" type="button" hidden>Stop agent</button>
               </form>
+              <div class="quick" id="quick" aria-label="Quick replies">
+                <button type="button" class="chip" data-say="Approved. Go on to the next stage.">Approve</button>
+                <button type="button" class="chip" data-say="Continue from where you stopped.">Continue</button>
+                <button type="button" class="chip" data-say="Give me a two-line status: what is done, what is next, anything blocking.">Status?</button>
+              </div>
             </section>
 
-            <section class="player-pane" aria-labelledby="player-h">
-              <div class="pane-head"><h3 id="player-h">Film</h3></div>
-              <div id="player" class="player">
-                <p class="empty">The film appears here after it is assembled.</p>
+            <section class="right-pane">
+              <div class="tabs" role="tablist" aria-label="Film details">
+                <button role="tab" id="tab-film" aria-controls="panel-film" aria-selected="true">Film</button>
+                <button role="tab" id="tab-scenes" aria-controls="panel-scenes" aria-selected="false" tabindex="-1">Scenes <span id="scene-count" class="count"></span></button>
+                <button role="tab" id="tab-script" aria-controls="panel-script" aria-selected="false" tabindex="-1">Script <span id="line-count" class="count"></span></button>
               </div>
-              <div class="row">
-                <button id="open-video" class="btn" type="button" disabled>Open in player</button>
-                <button id="open-folder" class="btn" type="button">Open folder</button>
+
+              <div role="tabpanel" id="panel-film" aria-labelledby="tab-film" class="panel">
+                <div id="player" class="player">
+                  <p class="empty">The film appears here after it is assembled.</p>
+                </div>
+                <p id="playing" class="help"></p>
+                <div class="row">
+                  <button id="open-video" class="btn" type="button" disabled>Open in player</button>
+                  <button id="open-folder" class="btn" type="button">Open folder</button>
+                </div>
+              </div>
+              <div role="tabpanel" id="panel-scenes" aria-labelledby="tab-scenes" class="panel" hidden>
+                <ol id="scenes" class="scenes"></ol>
+              </div>
+              <div role="tabpanel" id="panel-script" aria-labelledby="tab-script" class="panel" hidden>
+                <ol id="script" class="script"></ol>
               </div>
             </section>
           </div>
@@ -135,5 +212,6 @@
         </div>
       </form>
     </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
   </body>
 </html>

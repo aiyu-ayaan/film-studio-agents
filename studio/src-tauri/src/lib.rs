@@ -103,6 +103,7 @@ pub fn run() {
             new_project,
             open_path,
             agent::list_agents,
+            agent::list_models,
             agent::start_agent,
             agent::stop_agent,
         ])
