@@ -19,6 +19,7 @@ The skill registry (job to skill) lives only in `../CLAUDE.md`. This folder hold
 | `tts-audition/` | Same line rendered per engine, to judge by ear. |
 | `licenses.md` | One table: can I sell what this makes? Action items. |
 | `monetization.md` | How to earn with this stack. Offers, prices, platform rules. |
+| `viral-roadmap.md` | Which Instagram/YouTube growth skills to use (2026-11-21) and a week-by-week plan to grow Reels and Shorts. |
 | `orchestration.md` | How film-studio combines the skills into one film; what is tested. |
 
 ## Summary in 8 lines

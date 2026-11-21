@@ -38,13 +38,42 @@ bin/new-project.sh my-film        # makes projects/<date>-my-film/ from template
 # then, in your agent: /film-studio  "a 60 s explainer about ..."
 ```
 
-Narrated film: `/film-studio`. Music-led film with no speech: `/film-studio-nospeech`. Captions on any video: `/film-captions`. Intro, chapter cards and smooth topic changes for long films: add `/film-framing`.
+Before making a channel video, score the idea: `/film-idea-score "idea"`. Narrated film: `/film-studio`. Music-led film with no speech: `/film-studio-nospeech`. Captions on any video: `/film-captions`. Intro, chapter cards and smooth topic changes for long films: add `/film-framing`.
 
 ## How a film is made
 
 `story + script` > `storyboard + recipe per scene` (you approve) > `voice + timing` > `scenes` > `music + SFX` > `assemble` > `captions` > `review` > `deliver`.
 
 Every scene carries a `recipe` in `plan.json`: the blueprint, registry blocks, camera move, shot card, Lemo style or 3D record it uses. `scene_check.py` refuses a scene with a missing or invented recipe, a wrong size, or more than 40% frozen frames.
+
+## Full flow
+
+From idea to posted video and back. Steps in brackets are not built yet.
+
+```mermaid
+flowchart TD
+    A[Idea] --> B["/film-idea-score<br>9 criteria, score out of 100"]
+    P[channel/profile.md<br>niche, viewer, peers] --> B
+    S[channel/swipe.md<br>outlier research] --> B
+    B -->|KILL or PARK| X[Drop it, or rework the angle]
+    B -->|FIX 60-74| R[Rewrite the weakest criterion] --> B
+    B -->|MAKE 75+| N["bin/new-project.sh &lt;slug&gt;"]
+    N --> F["/film-studio stages 0-9<br>script > storyboard (you approve) > voice ><br>scenes > music + SFX > assemble > captions > review"]
+    F --> Q[Quality gate<br>earshot critique, -14 LUFS, contact sheet]
+    Q --> D[renders/final.mp4 + NOTE.md credits]
+    D --> U["[Upload] YouTube Shorts + Instagram Reels<br>(Trial Reel first once over 1,000 followers)"]
+    U --> W[Weekly review<br>retention, sends per reach, follows per view]
+    W -->|real results| I[channel/ideas.md backlog]
+    I --> S
+```
+
+1. **Score the idea.** `/film-idea-score "your idea"` (or a list to rank). It reads `channel/profile.md`, checks `channel/swipe.md` for proof, rates nine criteria, runs `score.py` and logs the result to `channel/ideas.md`. Verdicts: MAKE at 75 or more, FIX at 60 to 74 (rewrite the weakest part and rescore), PARK under 60, KILL on any dealbreaker (no own angle, or the studio cannot make it).
+2. **Make the film.** `bin/new-project.sh <slug>`, then `/film-studio` with the winning hook. Vertical 1080x1920, 15 to 60 s, captions on.
+3. **Check it.** Earshot critique, loudness at -14 LUFS, true peak at -1 dBTP or lower, contact sheet.
+4. **Post it.** By hand for now. Same file to YouTube Shorts and Instagram Reels. Mark synthetic voice as altered or synthetic content; credit Kyutai if Pocket TTS was used.
+5. **Learn.** Every week, add real results to `channel/ideas.md`. Those results become the proof for the next scores.
+
+The growth plan behind this (which outside skills to add, what each platform rewards, the week-by-week roadmap): `research/viral-roadmap.md`.
 
 ## Layout
 
@@ -57,6 +86,7 @@ Every scene carries a `recipe` in `plan.json`: the blueprint, registry blocks, c
 | `templates/project/` | Skeleton for new projects. |
 | `assets/` | Shared media, each file logged in `assets/LEDGER.md` with source and licence. |
 | `business/` | Paid work: leads and clients. |
+| `channel/` | Own Instagram + YouTube channel: `profile.md`, `swipe.md`, `ideas.md` (scored idea backlog). |
 | `studio/` | Film Studio desktop app (Tauri: Rust in `src-tauri/`, TypeScript UI in `src/`). |
 | `bin/` | `studio.sh` (open the app), `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`, `clean.sh`. |
 
@@ -71,6 +101,7 @@ Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modul
 - Install the video skills: `bin/setup-skills.sh all` (HyperFrames, Shotcraft, Motionmaxxing, 3DViz, Earshot, Lemo-Opuscar, Remotion). They install into `~/.claude/`, not this repo.
 - Every `npx hyperframes` command needs `export HYPERFRAMES_CACHE_DIR=$HOME/.local/share/hyperframes-cache`.
 - Self-test of the film scripts (about 35 s): `.agents/skills/film-studio/scripts/selftest.sh`.
+- Self-test of the idea scorer: `python3 .agents/skills/film-idea-score/scripts/score.py --selftest`.
 
 ## Voice and licences
 
