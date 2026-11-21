@@ -84,6 +84,10 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - Other aspects: re-render scenes at the new size (padding is a fallback, not a delivery).
 - YouTube: disclose realistic synthetic voice; vary style per video (`research/monetization.md`).
 
+### 9. Cleanup (always, after the user accepts the film)
+- `bin/clean.sh <project>` (`-n` first to see the list). Deletes rebuildable bulk: `build/`, `renders/.clean/`, draft renders, scene clips/frames/caches, `node_modules`, vendored runtimes; then `git gc`. Keeps sources, `audio/` and `renders/final.mp4` + `.srt` + `qa.json`.
+- Re-editing later: re-render the scene clips first (`scene_check.py` lists the missing ones), then rerun assemble.py.
+
 ## Quality bar (best possible picture)
 
 Apply on every scene, whatever the skill. Taken from Motionmaxxing's measured findings and Shotcraft/HyperFrames practice.

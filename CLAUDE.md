@@ -13,7 +13,7 @@ Read `research/CLAUDE.md` for the facts behind every rule here: what each skill 
 | `templates/project/` | The skeleton every project starts from. Edit it to change all future projects. |
 | `assets/` | Shared, reusable media: `brand/`, `music/`, `sfx/`, `fonts/`, `footage/`, `images/`. Every file is logged in `assets/LEDGER.md`. |
 | `business/` | Paid work: `leads.md`, `clients/<name>/`. |
-| `bin/` | `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills). |
+| `bin/` | `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `clean.sh` (stage 9: delete rebuildable bulk). |
 | `.agents/skills/` | Real home of project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |
 
 ## Skill registry (router)
@@ -53,7 +53,7 @@ Routing rules:
 ## Pipeline for every video
 
 Run `/film-studio` (narrated, default) or `/film-studio-nospeech`. Stages, all in `.claude/skills/film-studio/SKILL.md`:
-0 setup > 1 story + script > 2 storyboard + style bible (user approves) > 3 voice + timing (`narrate.py`) or beat timing (`timing.py`) > 4 scenes, one silent clip per scene from the chosen skill > 5 music + SFX > 6 assemble (`assemble.py`) > 6b captions (`/film-captions`) > 7 review > 8 deliver (`NOTE.md` credits).
+0 setup > 1 story + script > 2 storyboard + style bible (user approves) > 3 voice + timing (`narrate.py`) or beat timing (`timing.py`) > 4 scenes, one silent clip per scene from the chosen skill > 5 music + SFX > 6 assemble (`assemble.py`) > 6b captions (`/film-captions`) > 7 review > 8 deliver (`NOTE.md` credits) > 9 cleanup (`bin/clean.sh`).
 Self-test of the scripts: `.claude/skills/film-studio/scripts/selftest.sh` (about 35 s).
 
 ## Voice policy
