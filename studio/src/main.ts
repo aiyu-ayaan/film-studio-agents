@@ -1,4 +1,4 @@
-import { invoke, convertFileSrc } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { listen } from "@tauri-apps/api/event";
 
@@ -585,7 +585,11 @@ function play(path: string | null, label: string) {
   const v = el("video");
   v.controls = true;
   v.preload = "metadata";
-  v.src = `${convertFileSrc(path)}?t=${Date.now()}`;
+  invoke<string | null>("media_url", { path }).then((u) => { if (u && playing === path) v.src = u; });
+  v.addEventListener("error", () => {
+    const codes = ["", "aborted", "network or file error", "decode error (missing codec?)", "format not supported"];
+    $("playing").textContent = `Could not play ${label}: ${codes[v.error?.code ?? 0] || "unknown error"}. Use Open in player.`;
+  });
   box.replaceChildren(v);
   $("playing").textContent = `Playing: ${label}`;
 }

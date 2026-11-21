@@ -234,7 +234,9 @@ code { font-family: var(--mono); font-size: 0.9em; }
   aspect-ratio: 16 / 9; display: grid; place-items: center; overflow: hidden;
   background: var(--leader); border-radius: var(--radius-m);
 }
-.player video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.player { position: relative; }
+/* absolute fill: percentage heights inside the flex/grid box do not resolve in WebKitGTK */
+.player video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #000; }
 /* the player fills the pane body, so it ends where the log ends */
 #panel-film { overflow: hidden; }
 #panel-film .player { flex: 1; aspect-ratio: auto; min-height: 200px; }

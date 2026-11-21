@@ -1,4 +1,5 @@
 mod agent;
+mod media;
 mod status;
 
 use std::path::PathBuf;
@@ -110,6 +111,12 @@ fn clear_gate(dir: String) -> Result<(), String> {
     Ok(())
 }
 
+/// Playable http URL for a video inside projects/.
+#[tauri::command]
+fn media_url(path: String) -> Option<String> {
+    media::url(&path)
+}
+
 /// Open a file or folder inside the repo with the desktop's default app.
 #[tauri::command]
 fn open_path(path: String) -> Result<(), String> {
@@ -126,8 +133,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .manage(agent::Runner::default())
         .setup(|app| {
-            // let the webview play renders/final.mp4 from any project
-            app.asset_protocol_scope().allow_directory(root().join("projects"), true)?;
+            // the in-app player streams films from a loopback server (see media.rs)
+            media::start(root().join("projects"))?;
             // the UI shows the hidden window after its first render; show it anyway if the UI failed
             let h = app.handle().clone();
             std::thread::spawn(move || {
@@ -143,6 +150,7 @@ pub fn run() {
             project_status,
             new_project,
             open_path,
+            media_url,
             read_project_file,
             clear_gate,
             agent::list_agents,
