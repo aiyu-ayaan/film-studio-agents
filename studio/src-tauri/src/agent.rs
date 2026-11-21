@@ -33,8 +33,8 @@ const AGENTS: [(&str, &str, &str, [&str; 3]); 3] = [
         "No sandbox, no approvals: any command, any file (--dangerously-bypass-approvals-and-sandbox).",
     ]),
     ("agy", "Antigravity", "agy", [
-        "Plans only: changes nothing (--mode plan).",
-        "Edits files and runs shell commands without asking; browser and other tools stay denied (--mode accept-edits, command(*) allowed). Headless Antigravity cannot ask, so this is close to full access.",
+        "Plans only: changes nothing; may read files anywhere (--mode plan, read_file(*) allowed).",
+        "Edits files and runs shell commands without asking; browser and other tools stay denied (--mode accept-edits, command(*) and read_file(*) allowed). Headless Antigravity cannot ask, so this is close to full access.",
         "Approves every tool request without asking (--dangerously-skip-permissions).",
     ]),
 ];
@@ -132,8 +132,9 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
             match level {
                 2 => push("--dangerously-skip-permissions"),
                 // headless agy auto-denies every shell command; the pipeline cannot run without them
-                1 => { push("--mode"); push("accept-edits"); push("--settings"); push(r#"{"permissions":{"allow":["command(*)"]}}"#) }
-                _ => { push("--mode"); push("plan") }
+                1 => { push("--mode"); push("accept-edits"); push("--settings"); push(r#"{"permissions":{"allow":["command(*)","read_file(*)"]}}"#) }
+                // skills live outside the repo (~/.claude/skills, ~/lemo-opuscar); headless agy denies reading them
+                _ => { push("--mode"); push("plan"); push("--settings"); push(r#"{"permissions":{"allow":["read_file(*)"]}}"#) }
             }
             if let Some(id) = session { push("--conversation"); push(id) }
             push("-p");
