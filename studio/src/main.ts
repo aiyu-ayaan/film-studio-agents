@@ -347,14 +347,16 @@ $("new-film").addEventListener("click", () => {
   current = null;
   renderList();
   show("new");
-  $("slug").focus();
+  $("brief").focus();
 });
 $("new-cancel").addEventListener("click", () => show(current ? "film" : "empty"));
 
 $("new-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const slug = $<HTMLInputElement>("slug").value.trim();
   const brief = $<HTMLTextAreaElement>("brief").value.trim();
+  // empty folder name: make one from the brief's first words, like the CLI does
+  const auto = brief.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(" ").filter((w) => w.length > 2).slice(0, 5).join("-").slice(0, 60);
+  const slug = $<HTMLInputElement>("slug").value.trim() || auto || "film";
   $("new-error").textContent = "";
   try {
     const path = await invoke<string>("new_project", { slug });
