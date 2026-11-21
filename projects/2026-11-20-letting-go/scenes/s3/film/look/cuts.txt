@@ -1,6 +1,0 @@
-# cuts from events clip.mp4.events.json (time s, frame, timecode, source)
-4.733	frame 142	0:04.73	event cut 'hide #sA show #sB'
-# detected but not in events:
-0.100	frame 3	0:00.10	pixel spike x7.4 diff 8.6 corr 0.24 scene 0.07
-0.300	frame 9	0:00.30	pixel spike x4.9 diff 13.0 corr 0.30 scene 0.11
-0.567	frame 17	0:00.57	pixel spike x5.8 diff 16.1 corr 0.58 scene 0.02
