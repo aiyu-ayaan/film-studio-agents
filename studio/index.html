@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Film Studio</title>
+    <script type="module" src="/src/main.ts" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to film</a>
+    <div class="app">
+      <aside class="side" aria-label="Films and agent">
+        <h1 class="brand">Film Studio</h1>
+        <button id="new-film" class="btn primary" type="button">New film</button>
+        <nav aria-label="Films">
+          <ul id="projects" class="projects"></ul>
+        </nav>
+
+        <section class="agent" aria-labelledby="agent-h">
+          <h2 id="agent-h" class="side-h">Agent</h2>
+          <label class="field">
+            <span>Runs the pipeline</span>
+            <select id="agent"></select>
+          </label>
+          <label class="field" id="custom-wrap" hidden>
+            <span>Command (prompt is in <code>$PROMPT</code>)</span>
+            <input id="custom-cmd" type="text" spellcheck="false" placeholder='my-agent --print "$PROMPT"' />
+          </label>
+
+          <fieldset class="perm">
+            <legend>What the agent may do</legend>
+            <div class="seg" role="radiogroup">
+              <label><input type="radio" name="level" value="0" /><span>Read only</span></label>
+              <label><input type="radio" name="level" value="1" /><span>Guarded</span></label>
+              <label><input type="radio" name="level" value="2" /><span>Full access</span></label>
+            </div>
+            <p id="level-help" class="help"></p>
+          </fieldset>
+
+          <label class="check">
+            <input id="lean" type="checkbox" />
+            <span>Lean run<small>Drops unused tools from the agent's context and tells it to read only what each stage needs. Same pipeline, fewer tokens.</small></span>
+          </label>
+        </section>
+      </aside>
+
+      <main id="main" class="main" tabindex="-1">
+        <div id="full-banner" class="banner" role="status" hidden>
+          Full access is on. The agent can run any command and delete any file in this folder without asking.
+        </div>
+
+        <!-- new film form -->
+        <section id="new-view" class="new" hidden aria-labelledby="new-h">
+          <h2 id="new-h" class="title">A new film</h2>
+          <form id="new-form" class="form">
+            <label class="field">
+              <span>Folder name</span>
+              <input id="slug" required pattern="[a-z0-9-]{1,60}" placeholder="history-of-c" spellcheck="false" />
+              <small class="help">Lowercase letters, digits and dashes. Today's date is added in front.</small>
+            </label>
+            <label class="field">
+              <span>What is the film about?</span>
+              <textarea id="brief" required rows="6" placeholder="A 3 minute YouTube explainer on the history of C: why it was made, what it is, where it runs, and where it stands today."></textarea>
+            </label>
+            <div class="row">
+              <label class="check"><input id="speech" type="checkbox" checked /><span>Narrated<small>Off: no voice, cut to music.</small></span></label>
+              <label class="check" id="framing-wrap"><input id="framing" type="checkbox" /><span>Intro and chapter bridges<small>Adds an opening and a short bridge between topics, so sections don't switch abruptly.</small></span></label>
+            </div>
+            <p id="new-error" class="error" role="alert"></p>
+            <div class="row">
+              <button class="btn primary" type="submit">Start film</button>
+              <button class="btn" type="button" id="new-cancel">Cancel</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- project view -->
+        <section id="film-view" class="film" hidden>
+          <header class="film-head">
+            <h2 id="film-title" class="title"></h2>
+            <p id="film-meta" class="meta"></p>
+          </header>
+
+          <div class="leader-wrap">
+            <ol id="leader" class="leader" aria-label="Pipeline stages"></ol>
+            <div class="bar" role="progressbar" id="bar" aria-valuemin="0" aria-valuemax="100" aria-label="Film progress">
+              <div class="bar-fill" id="bar-fill"></div>
+            </div>
+            <p id="stage-line" class="stage-line"></p>
+          </div>
+
+          <div class="work">
+            <section class="log-pane" aria-labelledby="log-h">
+              <div class="pane-head">
+                <h3 id="log-h">Agent output</h3>
+                <span id="run-state" class="run-state" role="status"></span>
+              </div>
+              <div id="log" class="log" role="log" aria-live="polite"></div>
+              <form id="reply-form" class="reply">
+                <label class="sr" for="reply">Message to the agent</label>
+                <textarea id="reply" rows="2" placeholder="Approve the storyboard, answer a question, or ask for a change"></textarea>
+                <button id="send" class="btn primary" type="submit">Send</button>
+                <button id="stop" class="btn danger" type="button" hidden>Stop agent</button>
+              </form>
+            </section>
+
+            <section class="player-pane" aria-labelledby="player-h">
+              <div class="pane-head"><h3 id="player-h">Film</h3></div>
+              <div id="player" class="player">
+                <p class="empty">The film appears here after it is assembled.</p>
+              </div>
+              <div class="row">
+                <button id="open-video" class="btn" type="button" disabled>Open in player</button>
+                <button id="open-folder" class="btn" type="button">Open folder</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="empty-view" class="empty-view">
+          <h2 class="title">No film open</h2>
+          <p>Start a new film, or pick one from the list.</p>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="full-dialog" aria-labelledby="full-h">
+      <form method="dialog">
+        <h2 id="full-h">Allow full access?</h2>
+        <p id="full-text"></p>
+        <p>Only use it in a folder you can restore from git. Guarded is enough for most films.</p>
+        <div class="row">
+          <button class="btn" value="no" autofocus>Keep guarded</button>
+          <button class="btn danger" value="yes">Allow full access</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
