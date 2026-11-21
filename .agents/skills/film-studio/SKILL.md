@@ -34,6 +34,7 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - Write every narration line as speech. Follow "Make any TTS sound human" in `research/tts.md`: contractions, short sentences, fillers where a person pauses, punctuation for timing, numbers spelled out.
 - Pace: about 2.5 words per second. 60 s film = about 140 words. One line = one beat = 1-3 sentences.
 - Put lines in `plan.json` `lines[]` and a readable copy in `script.md`.
+- Framing (intro, chapter bridges, outro): when the user asks for it, apply `.agents/skills/film-framing/SKILL.md` at stages 1, 2 and 5 and pass its `framing_check.py` before G1. For a film with 3+ topic sections or over 3 minutes, offer it once at G1.
 - Gate G1 (with stage 2): show the user the script and the storyboard together. Wait for approval.
 
 ### 2. Storyboard and style bible

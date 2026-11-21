@@ -25,6 +25,7 @@ Install state checked 2026-11-20 (all 7 present). Run `bin/setup-skills.sh <name
 |---|---|---|---|---|---|
 | **A whole film (default): story + voice + scenes from several skills + music + captions** | **film-studio (`/film-studio`)** | orchestrator, ffmpeg assembly | `.claude/skills/film-studio/` | Ours | Yes, project |
 | A whole film with no narration, cut to music | film-studio-nospeech (`/film-studio-nospeech`) | same | `.claude/skills/film-studio-nospeech/` | Ours | Yes, project |
+| Intro, chapter bridges and outro for films with topic sections (add-on, stages 1, 2, 5) | film-framing (`/film-framing`) | plan.json roles + `framing_check.py` | `.claude/skills/film-framing/` | Ours | Yes, project (2026-11-21) |
 | Captions on any video (the only skill that adds captions) | film-captions (`/film-captions`) | ASS + libass | `.claude/skills/film-captions/` | Ours; Montserrat OFL | Yes, project |
 | General edits, any single scene with no better fit, render/preview | HyperFrames (`/hyperframes`) | HyperFrames | `research/skills/hyperframes.md` | Yes (Apache-2.0) | Yes, global |
 | Real-UI product promo from a website or app, Ink Press template | Shotcraft (`video-shotcraft`) | HyperFrames (fork) or Remotion (upstream) | `research/skills/shotcraft.md` | Yes (Apache-2.0); 5 SFX excluded | Yes, global (2026-11-20) |

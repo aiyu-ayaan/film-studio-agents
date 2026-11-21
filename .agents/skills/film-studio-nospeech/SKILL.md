@@ -18,3 +18,4 @@ Read and follow `/media/aiyu/550E85595197DBEC/Personal/Movies/.claude/skills/fil
 | 5. Sound | Music is the lead: `music.gain_db` about -1. SFX sit on cuts and text hits. |
 | 6. Assemble | Same `assemble.py`; it skips voice and ducking when `speech` is false. |
 | 8. Deliver | No `.srt`. Text must be readable at phone size without sound. |
+| Framing | film-framing works here too: intro, cards and outro carry on-screen text instead of lines; chapter changes land on a bar line. |
