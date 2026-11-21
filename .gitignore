@@ -32,3 +32,5 @@ projects/*/scenes/*/package-lock.json
 projects/*/scenes/*/*.events.json
 !docs/launch.mp4
 !docs/launch.gif
+projects/*
+!projects/.gitkeep
