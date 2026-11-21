@@ -77,6 +77,9 @@ Pass each gate before the next stage. Two user gates only: G1 (story + storyboar
 - Captions are the only words that repeat the narration. Scenes never paint subtitle lines or the spoken sentence; on-screen text is titles, labels, numbers and kinetic-type hits only. Otherwise the film shows the words twice.
 - Gate: 3 caption frames checked (inside frame, not over on-screen text, words right).
 
+### 6c. Outro (when the user asks, or `master.outro` is true)
+- `python3 .agents/skills/film-outro/scripts/outro.py status`, then `outro.py append renders/final.mp4`. Never rebuild the outro (`make` runs once per channel). Rerun `append` after any re-caption or re-assemble.
+
 ### 7. Review
 - Contact sheet: `ffmpeg -i renders/final.mp4 -vf "fps=1,scale=480:-1,tile=6x5" -frames:v 1 renders/contact.png`; look at it. Fix: dead frames, page chrome (corner labels, counters), unreadable text, a scene that breaks style.md.
 - Required: `earshot critique renders/final.mp4` (fix "major" items) and Motionmaxxing `lint.mjs` on every HTML scene's `index.html` (page chrome). Dead frames are already gated by `scene_check.py`.

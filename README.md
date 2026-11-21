@@ -40,6 +40,66 @@ bin/new-project.sh my-film        # makes projects/<date>-my-film/ from template
 
 Before making a channel video, score the idea: `/film-idea-score "idea"`. Narrated film: `/film-studio`. Music-led film with no speech: `/film-studio-nospeech`. Captions on any video: `/film-captions`. Intro, chapter cards and smooth topic changes for long films: add `/film-framing`.
 
+## Skills
+
+Project skills live in `.agents/skills/` (the real files). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to every one of them, so Claude Code, Hermes and any `AGENTS.md` tool find the same set. Add a new project skill to `.agents/skills/`, then symlink it into both.
+
+### Studio skills (ours)
+
+| Skill | Use it for |
+|---|---|
+| `film-studio` | A whole narrated film: story, script, voice, scenes from several skills, music, captions, quality checks. The default for any finished video. |
+| `film-studio-nospeech` | A whole film with no narration, cut to the beat of a music track. |
+| `film-framing` | Intro, chapter bridges and outro for films with topic sections (add-on to `film-studio`). |
+| `film-captions` | Word-timed captions on any video (clean, karaoke, box, punch). The only skill that adds captions. Spoken numbers of 10+ show as digits. |
+| `film-outro` | The channel's 2 s outro, built once and cached, then appended to any reel with one command. |
+| `film-idea-score` | Score a Reel/Short idea out of 100 before making it (MAKE / FIX / PARK / KILL). |
+
+### Design skills
+
+| Skill | Use it for |
+|---|---|
+| `ui-ux-pro-max` | Styles, palettes, font pairings and UX rules, searchable (`scripts/search.py`). Used for each film's `style.md`. |
+| `design-system` | Three-layer design tokens (primitive, semantic, component), CSS variables, slide generation. |
+| `design` | Brand identity, tokens, logo and corporate-identity generation (the logo/CIP generators call Gemini; optional). |
+| `brand` | Brand voice, visual identity, messaging, asset checks. |
+| `banner-design` | Banners and covers for social, ads, website heroes and print. |
+| `slides` | HTML presentations with Chart.js and design tokens. |
+| `ui-styling` | shadcn/ui + Tailwind interfaces, accessible components, canvas visuals. |
+
+### Remotion skills (only when the user or client asks for Remotion)
+
+| Skill | Use it for |
+|---|---|
+| `remotion-best-practices` | Router for all Remotion skills. |
+| `remotion-create` | Start a new Remotion video. |
+| `remotion-markup` | Content, animation and effects best practices. |
+| `remotion-interactivity` | Make layers, timing and styles editable in Remotion Studio. |
+| `remotion-captions` | Transcribe, display and animate captions (not used in films: captions go through `film-captions`). |
+| `remotion-maps` | Map animations (Cesium, MapTiler). |
+| `remotion-multimedia` | Audio and video handling with Mediabunny. |
+| `remotion-render` | Export a video, still or OpenTimelineIO timeline. |
+| `remotion-studio` | Preview a Remotion video. |
+| `remotion-docs` | Search the Remotion docs. |
+| `remotion-license` | Licence terms (free for individuals and companies of 3 or fewer). |
+| `remotion-saas` | Build an app with Remotion. |
+| `remotion-upgrade` | Upgrade Remotion and its packages. |
+
+### Video skills installed outside the repo (`bin/setup-skills.sh all`)
+
+| Skill | Use it for | Where |
+|---|---|---|
+| HyperFrames (`/hyperframes`) | General scenes, edits, render and preview (the fallback engine) | `~/.claude/skills/` |
+| Shotcraft (`video-shotcraft`) | Product promos built from a real website or app UI | `~/.claude/skills/` |
+| Motionmaxxing (`/motionmaxxing`) | Launch films, brand stings, kinetic type | `~/.claude/skills/` |
+| Lemo-Opuscar (`/lemo-opuscar:lemo-opuscar`) | Narrated films in one of 99 named looks (watercolor, woodcut, news...) | Claude plugin |
+| 3DViz Pro Max (`/3dviz-pro-max`) | 3D hero scenes and STEM explainers (Three.js) | `~/.claude/skills/` |
+| Earshot (`earshot` CLI / MCP) | Pick and make SFX, check sync and loudness, critique the mix | CLI + MCP |
+| Herk Edit Kit | Edit your own recordings (cut silences and mistakes, 9:16 reels) and 406 editorial card scenes | `~/.local/share/skill-src/herk-edit-kit` |
+| OpenMontage (via `bin/om.sh`) | Real stock footage scenes (NASA, Wikimedia, Archive.org...), grading, reframing | `~/.local/share/skill-src/OpenMontage` |
+
+Which skill does which job, licences and install state: the registry in `CLAUDE.md` and one card per skill in `research/skills/`.
+
 ## How a film is made
 
 `story + script` > `storyboard + recipe per scene` (you approve) > `voice + timing` > `scenes` > `music + SFX` > `assemble` > `captions` > `review` > `deliver`.
@@ -80,19 +140,20 @@ The growth plan behind this (which outside skills to add, what each platform rew
 | Path | What it holds |
 |---|---|
 | `AGENTS.md` / `CLAUDE.md` | Rules, skill router, pipeline. `AGENTS.md` is a symlink to `CLAUDE.md`. |
-| `.agents/skills/` | Project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` link here. |
+| `.agents/skills/` | All project skills (film-*, design, remotion-*). `.claude/skills/` and `.hermes/skills/` link here. |
 | `research/` | Dated notes: one card per skill, TTS, licences, money plan. |
 | `projects/<date>-<slug>/` | One folder per film: `plan.json`, script, storyboard, scene sources. |
 | `templates/project/` | Skeleton for new projects. |
 | `assets/` | Shared media, each file logged in `assets/LEDGER.md` with source and licence. |
 | `business/` | Paid work: leads and clients. Local only, not in git. |
+| `todo/` | What to make next: one file per planned video, in order (`todo/README.md`). Local only, not in git. |
 | `channel/` | Own Instagram + YouTube channel: `profile.md`, `swipe.md`, `ideas.md` (scored idea backlog). Local only, not in git. |
 | `studio/` | Film Studio desktop app (Tauri: Rust in `src-tauri/`, TypeScript UI in `src/`). |
 | `bin/` | `studio.sh` (open the app), `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`, `clean.sh`. |
 
 ## Not in git
 
-Personal folders (`business/`, `channel/`, `assets/brand/<name>/`) stay local. Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
+Personal folders (`business/`, `channel/`, `todo/`, `assets/brand/<name>/`) stay local. Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
 
 ## Setup
 

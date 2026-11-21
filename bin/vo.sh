@@ -18,7 +18,8 @@ out=$(realpath -m "$out")
 
 case "$engine" in
   kokoro)
-    npx -y hyperframes tts "$input" -o "$out" -v "${voice:-af_heart}" ;;
+    # VO_SPEED: Kokoro's own speed multiplier (prosody kept), e.g. 1.25 for the 2 s channel outro.
+    npx -y hyperframes tts "$input" -o "$out" -v "${voice:-af_heart}" ${VO_SPEED:+-s "$VO_SPEED"} ;;
   pocket)
     # Pocket TTS (Kyutai, weights CC BY 4.0: credit Kyutai). [voice] = path to a 5-20 s clean wav to clone (consent required).
     [ -f "$input" ] && input=$(cat "$input")

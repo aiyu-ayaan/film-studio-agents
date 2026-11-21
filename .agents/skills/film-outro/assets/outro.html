@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1080, height=1920" />
+<title>Channel outro</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<script src="words.js"></script>
+<style>
+@font-face{font-family:"Barlow Condensed";src:url(fonts/BarlowCondensed-Bold.ttf);font-weight:700}
+@font-face{font-family:"Barlow Condensed";src:url(fonts/BarlowCondensed-SemiBold.ttf);font-weight:600}
+:root{--ink:#0E0F13;--cream:#F3EFE6;--signal:#FF5A1F}
+body{margin:0;background:var(--ink)}
+#root{position:relative;width:100%;height:100%;overflow:hidden;background:var(--ink)}
+#stage{position:absolute;inset:0;transform-origin:50% 42%}
+#field{position:absolute;inset:0}
+#mark{position:absolute;left:340px;top:400px;width:400px;height:400px}
+#rpath,#step1,#step2{visibility:hidden}
+.sq{position:absolute;left:0;top:0;width:21px;height:21px;background:var(--cream)}
+#lines{position:absolute;left:96px;right:160px;top:900px;height:560px}
+.line{position:absolute;left:0;right:0;top:0;text-align:center;font-family:"Barlow Condensed";
+  text-transform:uppercase;color:var(--cream);line-height:1.02}
+.l0{font-weight:700;font-size:118px}
+.l1{font-weight:700;font-size:150px}
+.l2{font-weight:600;font-size:96px}
+.w{display:inline-block;margin:0 .1em;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="outro" data-start="0" data-width="1080" data-height="1920" data-duration="__DURATION__">
+  <div id="stage">
+    <canvas id="field" width="1080" height="1920"></canvas>
+    <svg id="mark" viewBox="0 0 256 256">
+      <path id="rpath" fill="#F3EFE6" fill-rule="evenodd" d="M64 48H144A48 48 0 0 1 144 144H100V208H64Z M100 80V112H144A16 16 0 0 0 144 80Z"/>
+      <rect id="step1" fill="#FF5A1F" x="124" y="144" width="40" height="32"/>
+      <rect id="step2" fill="#FF5A1F" x="156" y="176" width="40" height="32"/>
+    </svg>
+    <div id="sqs"></div>
+    <div id="lines"></div>
+  </div>
+</div>
+<script>
+// Seek-safe: everything is a function of the paused timeline; random numbers are seeded.
+const O = window.OUTRO, MARK = O.mark_s;
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+// Pixel field (assets/brand/renderstand/pixels.js): dense at the edges, empty in the middle.
+(function field(cv, cell = 36) {
+  const c = cv.getContext("2d"), W = cv.width, H = cv.height;
+  for (let x = 0; x < W; x += cell) for (let y = 0; y < H; y += cell) {
+    const dx = Math.max(0, Math.abs(x + cell / 2 - W / 2) - W * .31) / (W * .19);
+    const dy = Math.max(0, Math.abs(y + cell / 2 - H / 2) - H * .25) / (H * .25);
+    const d = Math.min(1, Math.max(dx, dy));
+    if (rnd() < d * d * .55) {
+      c.fillStyle = rnd() < .12 ? `rgba(255,90,31,${.35 + .5 * d})` : `rgba(243,239,230,${.03 + .10 * d})`;
+      c.fillRect(x + 2, y + 2, cell - 4, cell - 4);
+    }
+  }
+})(document.getElementById("field"));
+
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#stage", { scale: 1 }, { scale: 1.05, duration: O.duration, ease: "none" }, 0);  // camera always moving
+
+// Render reveal: squares fly in from the frame edges and become the R.
+const k = 400 / 256, cell = 16, path = new Path2D(document.getElementById("rpath").getAttribute("d"));
+const probe = document.createElement("canvas").getContext("2d"), sqs = document.getElementById("sqs");
+let n = 0;
+for (let x = 64; x < 192; x += cell) for (let y = 48; y < 208; y += cell) {
+  if (!probe.isPointInPath(path, x + cell / 2, y + cell / 2, "evenodd")) continue;
+  const s = document.createElement("div"); s.className = "sq"; sqs.appendChild(s);
+  const tx = 340 + x * k + 2, ty = 400 + y * k + 2, side = rnd() < .5;
+  const fx = side ? (rnd() < .5 ? -60 : 1110) : rnd() * 1080, fy = side ? rnd() * 1920 : (rnd() < .5 ? -60 : 1980);
+  tl.fromTo(s, { x: fx, y: fy, scale: 1.6 }, { x: tx, y: ty, scale: 1, duration: MARK * .5, ease: "power3.out" }, (n++ % 24) * MARK * .012);
+}
+tl.set(".sq", { autoAlpha: 0 }, MARK - .15);
+tl.set("#rpath", { visibility: "visible" }, MARK - .15);
+tl.fromTo("#mark", { scale: 1.06 }, { scale: 1, duration: .15, ease: "power2.out" }, MARK - .15);
+tl.set("#step1", { visibility: "visible" }, MARK - .12);
+tl.fromTo("#step1", { y: -40 }, { y: 0, duration: .12, ease: "power2.out" }, MARK - .12);
+tl.set("#step2", { visibility: "visible" }, MARK);
+tl.fromTo("#step2", { y: -40 }, { y: 0, duration: .12, ease: "power2.out" }, MARK);
+
+// Words appear on the frame they are spoken; the spoken word is signal orange.
+const lines = document.getElementById("lines"), phrases = [[]];
+O.words.forEach(w => { phrases[phrases.length - 1].push(w); if (/[.?!]$/.test(w.text)) phrases.push([]); });
+if (!phrases[phrases.length - 1].length) phrases.pop();
+phrases.forEach((ph, i) => {
+  const line = document.createElement("div"); line.className = `line l${Math.min(i, 2)}`; lines.appendChild(line);
+  ph.forEach(w => {
+    const el = document.createElement("span"); el.className = "w"; el.textContent = w.text.replace(/[.,!]$/, ""); line.appendChild(el);
+    tl.set(el, { visibility: "visible", color: "#FF5A1F" }, w.start);
+    tl.fromTo(el, { scale: 1.25, y: 24 }, { scale: 1, y: 0, duration: .2, ease: "power3.out" }, w.start);
+    tl.set(el, { color: "#F3EFE6" }, w.end);
+  });
+  const next = phrases[i + 1];
+  if (next) tl.to(line, { y: -140, autoAlpha: 0, duration: .12, ease: "power2.in" }, next[0].start - .12);
+});
+window.__timelines["outro"] = tl;
+</script>
+</body>
+</html>

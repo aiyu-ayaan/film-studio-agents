@@ -116,6 +116,9 @@ UNITS = {w: i for i, w in enumerate("zero one two three four five six seven eigh
 TENS = {w: 10 * i for i, w in enumerate("_ _ twenty thirty forty fifty sixty seventy eighty ninety".split()) if i > 1}
 
 
+MONTHS = set("january february march april may june july august september october november december".split())
+
+
 def num_value(tok):
     """Value of one number word ('forty-two' -> 42, 'hundred' -> 'hundred'), else None."""
     t = tok.lower().strip(".,?!;:…\"'")
@@ -156,6 +159,8 @@ def digits(words):
                 break                                     # 'six seven' is two numbers, not 13
             prev, j = v, j + 1
         value, n = total + cur, j - i
+        if n == 2 and value % 100 == 0 and 1100 <= value <= 2000 and i and words[i - 1]["text"].lower().strip(".,;:") in MONTHS:
+            year = True                                   # 'December, nineteen hundred' is 1900, not 1,900
         scale = j < len(words) and words[j]["text"].lower().strip(".,?!;:…") in ("million", "billion", "trillion")
         if n and (value >= 10 or n > 1 or scale):
             tail = re.search(r"[.,?!;:…]*$", words[j - 1]["text"]).group()
@@ -178,6 +183,8 @@ def selftest():
     assert t("It starts in nineteen thirty-nine, and 1945 ends it.") == "It starts in 1939, and 1945 ends it."
     assert t("forty two and a hundred") == "42 and a hundred"
     assert t("Britain? Forty-five.") == "Britain? 45."
+    assert t("December, nineteen hundred. One hundred ten feet up.") == "December, 1900. 110 feet up."
+    assert t("A crew of fifteen hundred.") == "A crew of 1,500."
     assert t("no one saw six seven") == "no one saw six seven"
     m = digits(w("two thousand four hundred"))
     assert len(m) == 1 and m[0]["start"] == 0 and m[0]["end"] == 3.5

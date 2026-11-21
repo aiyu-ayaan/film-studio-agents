@@ -12,16 +12,17 @@ Read `research/CLAUDE.md` for the facts behind every rule here: what each skill 
 | `projects/<YYYY-MM-DD>-<slug>/` | One folder per video. Make it with `bin/new-project.sh <slug>`. |
 | `templates/project/` | The skeleton every project starts from. Edit it to change all future projects. |
 | `assets/` | Shared, reusable media: `brand/`, `music/`, `sfx/`, `fonts/`, `footage/`, `images/`. Every file is logged in `assets/LEDGER.md`. |
+| `todo/` | Planned videos, one file each, in order (`todo/README.md`). Pick the next video here. |
 | `business/` | Paid work: `leads.md`, `clients/<name>/`. |
 | `channel/` | Own IG + YouTube channel: `profile.md` (niche, viewer, peers), `swipe.md` (outliers), `ideas.md` (scored backlog), `format.md` (45 s reel rules: pace, framing, caption sync). Made by `/film-idea-score` on first run. |
 | `studio/` | Film Studio desktop app (Tauri: Rust `src-tauri/`, TypeScript `src/`). Runs any agent CLI on the pipeline; reads progress from project files; gates via `.studio/gate.json`, handoff via `.studio/handoff.md` (see film-studio "Gates and handoff"). |
 | `bin/` | `studio.sh` (open the app, release build), `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `om.sh` (run one OpenMontage tool), `clean.sh` (stage 9: delete rebuildable bulk). |
-| `.agents/skills/` | Real home of project skills (film-*, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |
+| `.agents/skills/` | Real home of all project skills (film-*, design skills, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |
 
 ## Skill registry (router)
 
 Pick the skill by the job. This mapping is our design choice, not something the repos state.
-Install state checked 2026-11-21 (all 9 present). Herk and OpenMontage live in `~/.local/share/skill-src/` (not symlinked: see their cards). Run `bin/setup-skills.sh <name>` to install one.
+Install state checked 2026-11-21 (all present). Herk and OpenMontage live in `~/.local/share/skill-src/` (not symlinked: see their cards). Run `bin/setup-skills.sh <name>` to install one.
 
 | Job | Skill (invoke) | Engine | Card | Commercial use | Installed |
 |---|---|---|---|---|---|
@@ -29,6 +30,7 @@ Install state checked 2026-11-21 (all 9 present). Herk and OpenMontage live in `
 | A whole film with no narration, cut to music | film-studio-nospeech (`/film-studio-nospeech`) | same | `.claude/skills/film-studio-nospeech/` | Ours | Yes, project |
 | Intro, chapter bridges and outro for films with topic sections (add-on, stages 1, 2, 5) | film-framing (`/film-framing`) | plan.json roles + `framing_check.py` | `.claude/skills/film-framing/` | Ours | Yes, project (2026-11-21) |
 | Score a channel video idea out of 100 before making it (IG Reels + YT Shorts) | film-idea-score (`/film-idea-score`) | rubric + `score.py` | `.claude/skills/film-idea-score/`, `research/viral-roadmap.md` | Ours | Yes, project (2026-11-21) |
+| Channel outro (2 s, "Follow Renderstand, daily reels."): built once, appended to any reel | film-outro (`/film-outro`) | `outro.py` (cached in `assets/brand/renderstand/outro/`) | `.claude/skills/film-outro/` | Ours | Yes, project (2026-11-21) |
 | Captions on any video (the only skill that adds captions) | film-captions (`/film-captions`) | ASS + libass | `.claude/skills/film-captions/` | Ours; Montserrat OFL | Yes, project |
 | General edits, any single scene with no better fit, render/preview | HyperFrames (`/hyperframes`) | HyperFrames | `research/skills/hyperframes.md` | Yes (Apache-2.0) | Yes, global |
 | Real-UI product promo from a website or app, Ink Press template | Shotcraft (`video-shotcraft`) | HyperFrames (fork) or Remotion (upstream) | `research/skills/shotcraft.md` | Yes (Apache-2.0); 5 SFX excluded | Yes, global (2026-11-20) |
@@ -44,6 +46,7 @@ Install state checked 2026-11-21 (all 9 present). Herk and OpenMontage live in `
 Routing rules:
 - Any request for a finished video goes to `/film-studio` (or `-nospeech`). It calls the skills below per scene.
 - Captions only through `/film-captions`. Other skills' caption features stay off.
+- Outro only through `/film-outro`: `outro.py status`, then `append`. Never rebuild the cached outro unless the user asks.
 - The global `hyperframes` skill calls itself the mandatory entry point. In this folder, use the table above first. Use HyperFrames when no row fits better.
 - Earshot runs on every film before delivery (see "Quality gate").
 - Footage the user recorded (not a film we write and voice) goes to Herk Edit Kit; finish with `/film-captions` and the quality gate. A film-studio film can still use a Herk card scene or an OpenMontage footage scene.
