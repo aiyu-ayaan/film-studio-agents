@@ -21,7 +21,7 @@ CRITERIA = {
     "legible": (10, "Is the topic clear in 1 s, sound off, to someone who never heard of you?"),
     "payoff": (10, "Is there a turn or payoff that holds 70%+ to the end, and a loop back to the hook?"),
     "angle":  (10, "Own research, data or human angle? Not a template or rehash (YouTube demonetizes those)"),
-    "fit":    (10, "Does it fit the channel promise in channel/profile.md, so viewers follow?"),
+    "fit":    (10, "Does it fit the channel promise in channel/renderstand/profile.md, so viewers follow?"),
     "make":   (10, "Can this studio make it in code in about a day? No real faces, footage or trademarks needed"),
     "legs":   (5,  "Does it have a part 2 / series, stay searchable, and work on both IG and YT?"),
 }

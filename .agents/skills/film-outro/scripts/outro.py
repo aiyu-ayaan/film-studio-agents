@@ -9,7 +9,7 @@
                                         the film without outro is kept in .pre-outro/ next to it).
   outro.py --selftest
 
-Defaults: brand assets/brand/renderstand, voice kokoro am_michael (bin/vo.sh), 2 s, 1080x1920 at 30 fps.
+Defaults: brand channel/renderstand, voice kokoro am_michael (bin/vo.sh), 2 s, 1080x1920 at 30 fps.
 The outro's words are on screen in sync with its voice, so it needs no captions; append it after film-captions.
 """
 import argparse, datetime, difflib, json, os, re, shutil, subprocess, sys, tempfile
@@ -21,8 +21,9 @@ from assemble import run, loudness                  # noqa: E402  (same ffmpeg h
 
 SKILL = Path(__file__).resolve().parents[1]
 TAG = "film-outro"
-DEFAULT = {"text": "Follow Renderstand, daily reels.", "engine": "kokoro", "voice": "am_michael", "speed": 1.25,
-           "seconds": 2.0, "lead_s": 0.05, "tail_s": 0.2, "mark_s": 0.6,
+FADE = 0.5   # dip-to-dark between film and outro: works whatever the film's look; audio crossfades over the same time
+DEFAULT = {"text": "More tomorrow. Follow Renderstand.", "engine": "kokoro", "voice": "am_michael", "speed": 1.2,
+           "seconds": 2.4, "lead_s": 0.3, "tail_s": 0.3, "mark_s": 0.75,
            "width": 1080, "height": 1920, "fps": 30, "lufs": -14, "true_peak": -1.5}
 
 
@@ -148,12 +149,17 @@ def append(brand, film, out=None):
         keep.parent.mkdir(exist_ok=True); shutil.copy2(film, keep); src = keep
     tmp = Path(tempfile.mkdtemp()) / out.name
     a = "aresample=48000,aformat=channel_layouts=stereo"
+    v = f"fps={q['fps']},format=yuv420p,settb=AVTB"
+    off = max(0.0, f["dur"] - FADE)
+    # Picture dips through dark (fadeblack) into the outro's ink ground, so any film look hands over cleanly.
+    # Sound: the film fades out while the outro's quiet lead-in fades in; the outro voice starts after the dip.
     run(["ffmpeg", "-y", "-v", "error", "-i", str(src), "-i", str(o), "-filter_complex",
-         f"[0:a]{a}[a0];[1:a]{a}[a1];[0:v][a0][1:v][a1]concat=n=2:v=1:a=1[v][a]", "-map", "[v]", "-map", "[a]",
+         f"[0:v]{v}[v0];[1:v]{v}[v1];[v0][v1]xfade=transition=fadeblack:duration={FADE}:offset={off:.3f}[v];"
+         f"[0:a]{a}[a0];[1:a]{a}[a1];[a0][a1]acrossfade=d={FADE}:c1=qsin:c2=qsin[a]", "-map", "[v]", "-map", "[a]",
          "-c:v", "libx264", "-crf", "16", "-preset", "faster", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "256k",
          "-metadata", f"comment={(f['comment'] + ' ' + TAG).strip()}", "-movflags", "+faststart", str(tmp)])
     out.parent.mkdir(parents=True, exist_ok=True); shutil.move(str(tmp), out)
-    print(f"wrote {out}: {f['dur']:.2f} s film + {q['dur']:.2f} s outro = {probe(out)['dur']:.2f} s")
+    print(f"wrote {out}: {f['dur']:.2f} s film + {q['dur']:.2f} s outro - {FADE} s fade = {probe(out)['dur']:.2f} s")
 
 
 def selftest():
@@ -167,7 +173,7 @@ def selftest():
         film = t / "final.mp4"; mk(film, 3, c="film-captions")
         append(brand, film)
         p = probe(film)
-        assert abs(p["dur"] - 5) < 0.1 and p["comment"].split() == ["film-captions", TAG], p
+        assert abs(p["dur"] - (5 - FADE)) < 0.1 and p["comment"].split() == ["film-captions", TAG], p
         assert (t / ".pre-outro" / "final.mp4").exists()
         for bad in (lambda: append(brand, film), lambda: (mk(t / "wide.mp4", 1, "1920x1080"), append(brand, t / "wide.mp4"))):
             try:
@@ -183,7 +189,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["status", "make", "append"])
     ap.add_argument("film", nargs="?"); ap.add_argument("out", nargs="?")
-    ap.add_argument("--brand", default=str(ROOT / "assets/brand/renderstand"))
+    ap.add_argument("--brand", default=str(ROOT / "channel/renderstand"))
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--text"); ap.add_argument("--voice"); ap.add_argument("--seconds", type=float); ap.add_argument("--speed", type=float)
     a = ap.parse_args(); brand = Path(a.brand).resolve()

@@ -12,7 +12,7 @@ The score is a structured judgment, not a prediction. A high score means the ide
 
 ## Step 1: load the channel profile
 
-Read `channel/profile.md`. If it does not exist, ask these three questions in one message, then write the file:
+Read `channel/renderstand/profile.md`. If it does not exist, ask these three questions in one message, then write the file:
 
 1. Niche and promise in one line ("How machines work, explained in 30 seconds of 3D").
 2. Who it is for (one specific viewer).
@@ -22,7 +22,7 @@ The `fit` criterion is judged against this file. Update it when the user changes
 
 ## Step 2: get evidence for `proof`
 
-Look for a swipe file in `channel/swipe.md` (made by `/ig-viral` or `/yt-viral` if installed, or by hand).
+Look for a swipe file in `channel/renderstand/swipe.md` (made by `/ig-viral` or `/yt-viral` if installed, or by hand).
 If an idea matches a pattern there that beat its account's median by 3x or more, `proof` can be 7 to 10.
 With no evidence, `proof` is at most 3. Do not invent view numbers. Say which row you matched, or say there is none.
 
@@ -38,7 +38,7 @@ Write one line of evidence per criterion. Be harsh: a 7 means clearly good, not 
 | `legible` | 10 | Is the topic clear in 1 s with sound off, to a stranger? |
 | `payoff` | 10 | Is there a turn or reveal that holds to the end, and a loop back to the hook? |
 | `angle` | 10 | Own research, data or human angle? A rehash of a common video scores 2 or less. |
-| `fit` | 10 | Does it fit the promise in `channel/profile.md`? |
+| `fit` | 10 | Does it fit the promise in `channel/renderstand/profile.md`? |
 | `make` | 10 | Can this studio make it in code in about a day (HyperFrames, 3DViz, Lemo-Opuscar, Motionmaxxing, our TTS)? Needing real faces, real footage or someone else's trademark scores 2 or less. |
 | `legs` | 5 | Part 2 or series potential, searchable, works on both IG and YT vertical? |
 
@@ -72,4 +72,4 @@ Show the script's ranking as is. Then, for each idea, give:
 - the weakest criterion and a concrete rewrite that fixes it (a new angle, a sharper hook line, a named share target),
 - for MAKE: the best hook line, ready for `/film-studio`.
 
-Append every scored idea to `channel/ideas.md` as one line: date, total, verdict, idea. That file is the backlog. After a video is posted, add its real result to the same line so future `proof` ratings can use it.
+Append every scored idea to `channel/renderstand/ideas.md` as one line: date, total, verdict, idea. That file is the backlog. After a video is posted, add its real result to the same line so future `proof` ratings can use it.

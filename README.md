@@ -52,20 +52,18 @@ Project skills live in `.agents/skills/` (the real files). `.claude/skills/` and
 | `film-studio-nospeech` | A whole film with no narration, cut to the beat of a music track. |
 | `film-framing` | Intro, chapter bridges and outro for films with topic sections (add-on to `film-studio`). |
 | `film-captions` | Word-timed captions on any video (clean, karaoke, box, punch). The only skill that adds captions. Spoken numbers of 10+ show as digits. |
-| `film-outro` | The channel's 2 s outro, built once and cached, then appended to any reel with one command. |
+| `film-outro` | The channel outro ("More tomorrow. Follow Renderstand.", about 2.9 s), built once and cached, then joined to any reel with a 0.5 s dip to dark. |
 | `film-idea-score` | Score a Reel/Short idea out of 100 before making it (MAKE / FIX / PARK / KILL). |
 
 ### Design skills
 
 | Skill | Use it for |
 |---|---|
-| `ui-ux-pro-max` | Styles, palettes, font pairings and UX rules, searchable (`scripts/search.py`). Used for each film's `style.md`. |
 | `design-system` | Three-layer design tokens (primitive, semantic, component), CSS variables, slide generation. |
 | `design` | Brand identity, tokens, logo and corporate-identity generation (the logo/CIP generators call Gemini; optional). |
 | `brand` | Brand voice, visual identity, messaging, asset checks. |
 | `banner-design` | Banners and covers for social, ads, website heroes and print. |
 | `slides` | HTML presentations with Chart.js and design tokens. |
-| `ui-styling` | shadcn/ui + Tailwind interfaces, accessible components, canvas visuals. |
 
 ### Remotion skills (only when the user or client asks for Remotion)
 
@@ -113,8 +111,8 @@ From idea to posted video and back. Steps in brackets are not built yet.
 ```mermaid
 flowchart TD
     A[Idea] --> B["/film-idea-score<br>9 criteria, score out of 100"]
-    P[channel/profile.md<br>niche, viewer, peers] --> B
-    S[channel/swipe.md<br>outlier research] --> B
+    P[channel/renderstand/profile.md<br>niche, viewer, peers] --> B
+    S[channel/renderstand/swipe.md<br>outlier research] --> B
     B -->|KILL or PARK| X[Drop it, or rework the angle]
     B -->|FIX 60-74| R[Rewrite the weakest criterion] --> B
     B -->|MAKE 75+| N["bin/new-project.sh &lt;slug&gt;"]
@@ -123,15 +121,15 @@ flowchart TD
     Q --> D[renders/final.mp4 + NOTE.md credits]
     D --> U["[Upload] YouTube Shorts + Instagram Reels<br>(Trial Reel first once over 1,000 followers)"]
     U --> W[Weekly review<br>retention, sends per reach, follows per view]
-    W -->|real results| I[channel/ideas.md backlog]
+    W -->|real results| I[channel/renderstand/ideas.md backlog]
     I --> S
 ```
 
-1. **Score the idea.** `/film-idea-score "your idea"` (or a list to rank). It reads `channel/profile.md`, checks `channel/swipe.md` for proof, rates nine criteria, runs `score.py` and logs the result to `channel/ideas.md`. Verdicts: MAKE at 75 or more, FIX at 60 to 74 (rewrite the weakest part and rescore), PARK under 60, KILL on any dealbreaker (no own angle, or the studio cannot make it).
+1. **Score the idea.** `/film-idea-score "your idea"` (or a list to rank). It reads `channel/renderstand/profile.md`, checks `channel/renderstand/swipe.md` for proof, rates nine criteria, runs `score.py` and logs the result to `channel/renderstand/ideas.md`. Verdicts: MAKE at 75 or more, FIX at 60 to 74 (rewrite the weakest part and rescore), PARK under 60, KILL on any dealbreaker (no own angle, or the studio cannot make it).
 2. **Make the film.** `bin/new-project.sh <slug>`, then `/film-studio` with the winning hook. Vertical 1080x1920, 15 to 60 s, captions on.
 3. **Check it.** Earshot critique, loudness at -14 LUFS, true peak at -1 dBTP or lower, contact sheet.
 4. **Post it.** By hand for now. Same file to YouTube Shorts and Instagram Reels. Mark synthetic voice as altered or synthetic content; credit Kyutai if Pocket TTS was used.
-5. **Learn.** Every week, add real results to `channel/ideas.md`. Those results become the proof for the next scores.
+5. **Learn.** Every week, add real results to `channel/renderstand/ideas.md`. Those results become the proof for the next scores.
 
 The growth plan behind this (which outside skills to add, what each platform rewards, the week-by-week roadmap): `research/viral-roadmap.md`.
 
@@ -147,13 +145,13 @@ The growth plan behind this (which outside skills to add, what each platform rew
 | `assets/` | Shared media, each file logged in `assets/LEDGER.md` with source and licence. |
 | `business/` | Paid work: leads and clients. Local only, not in git. |
 | `todo/` | What to make next: one file per planned video, in order (`todo/README.md`). Local only, not in git. |
-| `channel/` | Own Instagram + YouTube channel: `profile.md`, `swipe.md`, `ideas.md` (scored idea backlog). Local only, not in git. |
+| `channel/<name>/` | One folder per own channel. `channel/renderstand/`: links ([Instagram](https://www.instagram.com/renderstand.studio/), [Facebook](https://www.facebook.com/profile.php?id=61596857427904), [YouTube](https://www.youtube.com/@renderstand.studio)), `profile.md`, `format.md`, `ideas.md`, brand files, posts, the cached outro. Local only, not in git. |
 | `studio/` | Film Studio desktop app (Tauri: Rust in `src-tauri/`, TypeScript UI in `src/`). |
 | `bin/` | `studio.sh` (open the app), `new-project.sh`, `vo.sh` (voice + word timings), `setup-skills.sh`, `clean.sh`. |
 
 ## Not in git
 
-Personal folders (`business/`, `channel/`, `todo/`, `assets/brand/<name>/`) stay local. Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
+Personal folders (`business/`, `channel/`, `todo/` except its README, `assets/brand/<client>/`) stay local. Rebuildable or heavy files are ignored (see `.gitignore`): `.venv/`, `node_modules/`, all audio and video (`renders/`, `build/`, `audio/`, scene `clip.mp4`), and copies the skills vendor into each scene. Regenerate a film from its `plan.json`, `script.md` and scene sources.
 
 ## Setup
 

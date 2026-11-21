@@ -11,13 +11,27 @@ Read `research/CLAUDE.md` for the facts behind every rule here: what each skill 
 | `research/` | Research notes. One card per skill in `research/skills/`, plus `tts.md`, `licenses.md`, `monetization.md`. |
 | `projects/<YYYY-MM-DD>-<slug>/` | One folder per video. Make it with `bin/new-project.sh <slug>`. |
 | `templates/project/` | The skeleton every project starts from. Edit it to change all future projects. |
-| `assets/` | Shared, reusable media: `brand/`, `music/`, `sfx/`, `fonts/`, `footage/`, `images/`. Every file is logged in `assets/LEDGER.md`. |
+| `assets/` | Shared, reusable media (not tied to one channel): `brand/<client>/`, `music/`, `sfx/`, `fonts/`, `footage/`, `images/`. Every file is logged in `assets/LEDGER.md`. |
 | `todo/` | Planned videos, one file each, in order (`todo/README.md`). Pick the next video here. |
 | `business/` | Paid work: `leads.md`, `clients/<name>/`. |
-| `channel/` | Own IG + YouTube channel: `profile.md` (niche, viewer, peers), `swipe.md` (outliers), `ideas.md` (scored backlog), `format.md` (45 s reel rules: pace, framing, caption sync). Made by `/film-idea-score` on first run. |
+| `channel/<name>/` | One folder per own channel. `channel/renderstand/` = the Renderstand page (Instagram, Facebook, YouTube @renderstand.studio): `profile.md` (links, niche, viewer, peers), `format.md` (45 s reel rules), `ideas.md` (scored backlog), `swipe.md` (outliers, when made), brand (`DESIGN.md`, `tokens.css`, `pixels.js`, logos, banner), `posts/`, `outro/` (the cached outro). Local only, not in git. |
 | `studio/` | Film Studio desktop app (Tauri: Rust `src-tauri/`, TypeScript `src/`). Runs any agent CLI on the pipeline; reads progress from project files; gates via `.studio/gate.json`, handoff via `.studio/handoff.md` (see film-studio "Gates and handoff"). |
 | `bin/` | `studio.sh` (open the app, release build), `new-project.sh`, `vo.sh` (voiceover + word timings), `setup-skills.sh` (install skills), `om.sh` (run one OpenMontage tool), `clean.sh` (stage 9: delete rebuildable bulk). |
 | `.agents/skills/` | Real home of all project skills (film-*, design skills, remotion-*). `.claude/skills/` and `.hermes/skills/` hold relative symlinks to it, so any agent tool finds them. `AGENTS.md` links to this file. Add a new project skill here, then symlink it into both. |
+
+## Context map: check these before any work
+
+Nothing here lives only in a chat. Before planning, scripting or making a video, read what applies:
+
+| Working on | Read first |
+|---|---|
+| Anything for the Renderstand page | `channel/renderstand/profile.md` (links, niche), then `format.md` and `DESIGN.md` in the same folder |
+| "What next?", a new idea, a script | `todo/README.md` (the ordered plan) and the todo file it points to |
+| A film in progress | `projects/<date>-<slug>/.studio/handoff.md`, then its `plan.json` |
+| Paid work | `business/` |
+| Which skill does what | the registry below; `README.md` "Skills" |
+
+Write back to the same places: new ideas go to `todo/` (one file each, listed in `todo/README.md`), scores and posted results to `channel/<name>/ideas.md`, channel facts (handles, niche, viewer, peers) to `channel/<name>/profile.md`, stage progress to the project's `.studio/handoff.md`. A new channel gets its own `channel/<name>/` with the same files.
 
 ## Skill registry (router)
 
@@ -30,7 +44,7 @@ Install state checked 2026-11-21 (all present). Herk and OpenMontage live in `~/
 | A whole film with no narration, cut to music | film-studio-nospeech (`/film-studio-nospeech`) | same | `.claude/skills/film-studio-nospeech/` | Ours | Yes, project |
 | Intro, chapter bridges and outro for films with topic sections (add-on, stages 1, 2, 5) | film-framing (`/film-framing`) | plan.json roles + `framing_check.py` | `.claude/skills/film-framing/` | Ours | Yes, project (2026-11-21) |
 | Score a channel video idea out of 100 before making it (IG Reels + YT Shorts) | film-idea-score (`/film-idea-score`) | rubric + `score.py` | `.claude/skills/film-idea-score/`, `research/viral-roadmap.md` | Ours | Yes, project (2026-11-21) |
-| Channel outro (2 s, "Follow Renderstand, daily reels."): built once, appended to any reel | film-outro (`/film-outro`) | `outro.py` (cached in `assets/brand/renderstand/outro/`) | `.claude/skills/film-outro/` | Ours | Yes, project (2026-11-21) |
+| Channel outro (about 2.9 s, "More tomorrow. Follow Renderstand."): built once, appended to any reel | film-outro (`/film-outro`) | `outro.py` (cached in `channel/renderstand/outro/`) | `.claude/skills/film-outro/` | Ours | Yes, project (2026-11-21) |
 | Captions on any video (the only skill that adds captions) | film-captions (`/film-captions`) | ASS + libass | `.claude/skills/film-captions/` | Ours; Montserrat OFL | Yes, project |
 | General edits, any single scene with no better fit, render/preview | HyperFrames (`/hyperframes`) | HyperFrames | `research/skills/hyperframes.md` | Yes (Apache-2.0) | Yes, global |
 | Real-UI product promo from a website or app, Ink Press template | Shotcraft (`video-shotcraft`) | HyperFrames (fork) or Remotion (upstream) | `research/skills/shotcraft.md` | Yes (Apache-2.0); 5 SFX excluded | Yes, global (2026-11-20) |
