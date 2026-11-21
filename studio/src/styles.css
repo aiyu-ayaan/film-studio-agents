@@ -50,7 +50,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .skip:focus { left: 8px; z-index: 10; background: var(--surface); padding: 8px 12px; }
 [hidden] { display: none !important; }
 
-.app { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+body { overflow: hidden; }
+/* one row pinned to the window; sidebar and main scroll inside it, the page never does */
+.app { display: grid; grid-template-columns: 280px 1fr; grid-template-rows: 100%; height: 100vh; }
+.app > * { min-height: 0; }
 
 /* ---------- sidebar ---------- */
 .side {
@@ -137,7 +140,7 @@ code { font-family: var(--mono); font-size: 0.9em; }
 .row .check { flex: 1 1 240px; }
 .error { margin: 0; color: var(--danger); font-weight: 600; min-height: 1.5em; }
 
-.film { display: flex; flex-direction: column; gap: 20px; min-height: 0; flex: 1; }
+.film { display: flex; flex-direction: column; gap: 20px; flex: 1 0 auto; }
 
 /* ---------- the film leader ---------- */
 .leader-wrap { display: grid; gap: 10px; }
