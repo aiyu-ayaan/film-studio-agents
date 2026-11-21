@@ -4,7 +4,7 @@
 |---|---|
 | Repo | <https://github.com/OpenMontageInc/OpenMontage> (README clone URL: `calesthio/OpenMontage`) |
 | Checked | 2026-11-21, commit `2e003e65fa99`, ★82,047, last push 2026-11-16 |
-| Licence | AGPL-3.0 (`LICENSE`). Commercial: yes for videos made with it (output is not the program). Do not copy its code into this repo, do not import its modules from repo scripts, do not offer it as a network service. We run it as a separate process (`bin/om.sh`) |
+| Licence | AGPL-3.0 (`LICENSE`). Commercial: yes for videos made with it (output is not the program). Do not copy its code into this repo and do not offer it as a network service. The only repo file that imports it is `bin/om.sh`, itself AGPL-3.0-or-later; nothing else copies or imports it |
 | Invoke | `bin/om.sh <tool> '<json inputs>'`; `bin/om.sh list` shows the tools usable now |
 | Engine | Python tool registry (`tools/`), ffmpeg; optional Remotion/HyperFrames composers (not used) |
 | Needs | Python 3.12 venv inside the clone (`uv`), ffmpeg. Optional API keys per tool (Pexels, Pixabay, fal, ...) |
@@ -53,7 +53,7 @@ Whatever path the JSON gives (`output_dir`, `output_path`). `direct_clip_search`
 
 ## Limits and risks
 
-- AGPL-3.0: keep it a separate program. A script in this repo that imported its modules and was shared would have to be AGPL too.
+- AGPL-3.0: a script that imports its modules is a combined work and must be AGPL too. That is why only `bin/om.sh` (AGPL-licensed) imports it; everything else calls `bin/om.sh`.
 - Stock licences differ per source and per item: NASA "public domain with caveats" (no NASA logo or endorsement), Wikimedia/Openverse per file (CC BY needs credit, CC BY-SA share-alike, NC never), Library of Congress "verify per item". Write each clip's licence and URL in `NOTE.md`.
 - `direct_clip_search` returns `duration: 0.0` for NASA clips: probe with ffprobe.
 - Pipelines and many tools are experimental (per-tool `stability` field).

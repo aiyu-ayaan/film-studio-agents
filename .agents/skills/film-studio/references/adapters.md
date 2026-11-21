@@ -96,7 +96,8 @@ Status: tested = ran end to end here on 2026-11-20. Untested = documented from t
 - Grade to style.md: `bin/om.sh color_grade '{"input_path":"<abs clip>","output_path":"<abs>/scenes/<id>/graded.mp4","profile":"cinematic_cool","intensity":0.7}'` (profiles: `cinematic_warm`, `cinematic_cool`, `moody_dark`, `bright_clean`, `vintage_film`, `high_contrast`, `neutral`; or `lut_path`).
 - Conform with a camera move (tested 1280x720 source to 1920x1080, 0% frozen):
   `ffmpeg -ss <in> -t <s> -i scenes/<id>/graded.mp4 -an -vf "scale=w='trunc(<W>*(1+0.08*t/<s>)/2)*2':h=-2:eval=frame,crop=<W>:<H>,fps=<fps>,format=yuv420p" -c:v libx264 -crf 16 -preset veryfast scenes/<id>/clip.mp4`
-  The source must be at least the master aspect; for 9:16 first `bin/om.sh auto_reframe '{"input_path":"...","output_path":"...","target_aspect":"9:16"}'`.
+  The source must be at least the master aspect; for 9:16 first `bin/om.sh auto_reframe '{"input_path":"...","output_path":"...","target_aspect":"9:16"}'`, then conform with `<W>=1080`, `crop=1080:1920` (tested 2026-11-21, 0% frozen).
+  Reframe crops at source resolution: a 1280x720 clip gives 404x720, upscaled 2.7x to 1080x1920 (soft). For vertical films pick 4K sources (`filters.min_width: 3840`) or use the footage small in a HyperFrames layout.
 - Titles or labels over footage: build a HyperFrames scene with the conformed clip as a `<video>` layer instead.
 - Never its TTS, avatar, captions, `video_compose`/`hyperframes_compose` or `video_downloader`.
 

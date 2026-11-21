@@ -29,7 +29,7 @@ install() {
                    (cd "$SRC/herk-edit-kit" && npm ci --onnxruntime-node-install-cuda=skip && npm test) ;;
     # AGPL-3.0: runs only as a separate process (bin/om.sh). No `make setup`: it installs Piper TTS (excluded voice).
     openmontage)   [ -e "$SRC/OpenMontage" ] || git clone --depth 1 https://github.com/OpenMontageInc/OpenMontage "$SRC/OpenMontage"
-                   (cd "$SRC/OpenMontage" && uv venv -q --python 3.12 .venv && uv pip install -q --python .venv/bin/python -r requirements.txt) ;;
+                   (cd "$SRC/OpenMontage" && { [ -x .venv/bin/python ] || uv venv -q --python 3.12 .venv; } && uv pip install -q --python .venv/bin/python -r requirements.txt) ;;
     *) echo "unknown skill: $1 (known: $NAMES)" >&2; return 2 ;;
   esac
 }

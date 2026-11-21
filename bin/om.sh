@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: AGPL-3.0-or-later
 # Run one OpenMontage tool by name with JSON inputs; prints the result as JSON. Exit 1 if the tool failed.
 # Usage: bin/om.sh <tool> '<json inputs>'   |   bin/om.sh list   (tools usable now on this PC)
-# OpenMontage is AGPL-3.0: it runs as a separate process from its own clone and venv. Never copy its code here.
+# OpenMontage is AGPL-3.0. This file imports its registry, so this file alone is AGPL-3.0-or-later.
+# OpenMontage runs from its own clone and venv. Never copy its code into this repo; nothing else here imports it.
 # Paths in the JSON must be absolute (the tool runs with cwd = the OpenMontage clone).
 set -euo pipefail
 OM=${OPENMONTAGE_DIR:-$HOME/.local/share/skill-src/OpenMontage}
