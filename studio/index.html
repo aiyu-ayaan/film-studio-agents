@@ -93,25 +93,54 @@
               <span>What is the film about?</span>
               <textarea id="brief" required rows="6" placeholder="A 3 minute YouTube explainer on the history of C: why it was made, what it is, where it runs, and where it stands today."></textarea>
             </label>
-            <div class="row">
-              <label class="field grow">
-                <span>Format</span>
-                <select id="format">
-                  <option value="1920x1080">Landscape 1920×1080 (YouTube)</option>
-                  <option value="1080x1920">Vertical 1080×1920 (Shorts, Reels, TikTok)</option>
-                  <option value="1080x1080">Square 1080×1080</option>
-                </select>
-              </label>
-              <label class="field grow">
-                <span>Length</span>
-                <select id="length">
-                  <option value="about 60 seconds">About 1 minute</option>
-                  <option value="about 3 minutes" selected>About 3 minutes</option>
-                  <option value="about 5 minutes">About 5 minutes</option>
-                  <option value="about 10 minutes">About 10 minutes</option>
-                </select>
-              </label>
-            </div>
+            <fieldset class="fmt">
+              <legend>Picture and length</legend>
+              <div class="fmt-grid">
+                <label class="field">
+                  <span>Format</span>
+                  <select id="format">
+                    <option value="1920x1080">Landscape 1920×1080 (YouTube)</option>
+                    <option value="3840x2160">Landscape 4K 3840×2160</option>
+                    <option value="1280x720">Landscape 1280×720 (light render)</option>
+                    <option value="1080x1920">Vertical 1080×1920 (Shorts, Reels, TikTok)</option>
+                    <option value="1080x1350">Portrait 1080×1350 (Instagram feed)</option>
+                    <option value="1080x1080">Square 1080×1080</option>
+                    <option value="custom">Custom size…</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Frame rate</span>
+                  <select id="fps">
+                    <option value="24">24 fps (film)</option>
+                    <option value="25">25 fps</option>
+                    <option value="30" selected>30 fps</option>
+                    <option value="50">50 fps</option>
+                    <option value="60">60 fps (smooth, slower to render)</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Length</span>
+                  <select id="length">
+                    <option value="30">30 seconds</option>
+                    <option value="60">1 minute</option>
+                    <option value="180" selected>3 minutes</option>
+                    <option value="300">5 minutes</option>
+                    <option value="600">10 minutes</option>
+                    <option value="custom">Custom…</option>
+                  </select>
+                </label>
+              </div>
+              <div class="fmt-grid" id="custom-size" hidden>
+                <label class="field"><span>Width (px)</span><input id="w" type="number" min="320" max="7680" step="2" value="1920" /></label>
+                <label class="field"><span>Height (px)</span><input id="h" type="number" min="320" max="7680" step="2" value="1080" /></label>
+                <p class="help" id="aspect"></p>
+              </div>
+              <div class="fmt-grid" id="custom-length" hidden>
+                <label class="field"><span>Minutes</span><input id="len-m" type="number" min="0" max="60" value="2" /></label>
+                <label class="field"><span>Seconds</span><input id="len-s" type="number" min="0" max="59" value="0" /></label>
+                <p class="help" id="words"></p>
+              </div>
+            </fieldset>
             <div class="row">
               <label class="check"><input id="speech" type="checkbox" checked /><span>Narrated<small>Off: no voice, cut to music.</small></span></label>
               <label class="check" id="framing-wrap"><input id="framing" type="checkbox" /><span>Intro and chapter bridges<small>Adds an opening and a short bridge between topics, so sections don't switch abruptly.</small></span></label>

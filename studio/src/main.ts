@@ -160,6 +160,40 @@ function agentLabel(id: string) {
   return agents.find((a) => a.id === id)?.label ?? (id === "custom" ? "a custom agent" : id);
 }
 
+// ---------- new film: format, fps, length (presets or custom) ----------
+const num = (id: string) => Number($<HTMLInputElement>(id).value) || 0;
+function size(): [number, number] {
+  const f = $<HTMLSelectElement>("format").value;
+  if (f !== "custom") return f.split("x").map(Number) as [number, number];
+  const even = (n: number) => Math.max(320, Math.min(7680, Math.round(n / 2) * 2)); // encoders need even sizes
+  return [even(num("w")), even(num("h"))];
+}
+function seconds() {
+  const l = $<HTMLSelectElement>("length").value;
+  return l === "custom" ? Math.max(5, num("len-m") * 60 + num("len-s")) : Number(l);
+}
+function pictureAndLength() {
+  const [w, h] = size();
+  const fps = $<HTMLSelectElement>("fps").value;
+  const s = seconds();
+  return {
+    format: `${w}x${h} at ${fps} fps (set plan.master width ${w}, height ${h}, fps ${fps})`,
+    length: `${fmtTime(s)} (${s} s)`,
+  };
+}
+function renderFormatHelp() {
+  $("custom-size").hidden = $<HTMLSelectElement>("format").value !== "custom";
+  $("custom-length").hidden = $<HTMLSelectElement>("length").value !== "custom";
+  const [w, h] = size();
+  const g = (a: number, b: number): number => (b ? g(b, a % b) : a);
+  const d = g(w, h);
+  $("aspect").textContent = `${w}×${h}, aspect ${w / d}:${h / d}${w * h > 1920 * 1080 ? " · bigger than 1080p renders slower" : ""}`;
+  const s = seconds();
+  $("words").textContent = `${fmtTime(s)} · about ${Math.round(s * 2.5)} spoken words`;
+}
+["format", "length", "w", "h", "len-m", "len-s"].forEach((id) => $(id).addEventListener("input", renderFormatHelp));
+renderFormatHelp();
+
 function leanRules() {
   if (!$<HTMLInputElement>("lean").checked) return "";
   return "Token budget: read only the files the current stage names, never a whole skill folder or a large reference end to end. Trust script exit codes instead of re-reading outputs. Keep messages short.";
@@ -322,8 +356,7 @@ $("new-form").addEventListener("submit", async (e) => {
     await run(filmPrompt(rel, brief, {
       speech: $<HTMLInputElement>("speech").checked,
       framing: $<HTMLInputElement>("framing").checked,
-      format: $<HTMLSelectElement>("format").value,
-      length: $<HTMLSelectElement>("length").value,
+      ...pictureAndLength(),
     }), false);
     $<HTMLFormElement>("new-form").reset();
   } catch (err) {
