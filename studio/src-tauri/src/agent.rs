@@ -124,13 +124,15 @@ fn build_args(agent: &str, prompt: &str, session: Option<&str>, level: u8, lean:
             push(prompt);
         }
         "agy" => {
-            for s in ["-p", "--output-format", "stream-json"] { push(s) }
+            // agy's -p takes the prompt as its value, so it goes last, right before the prompt
+            for s in ["--output-format", "stream-json"] { push(s) }
             match level {
                 2 => push("--dangerously-skip-permissions"),
                 1 => { push("--mode"); push("accept-edits") }
                 _ => { push("--mode"); push("plan") }
             }
             if let Some(id) = session { push("--conversation"); push(id) }
+            push("-p");
             push(prompt);
         }
         _ => {}
@@ -407,6 +409,7 @@ mod tests {
                 let a = build_args(agent, "hi", None, level, true, "", "").join(" ");
                 assert_eq!(a.contains("dangerously"), level == 2, "{agent} {level}: {a}");
                 assert!(a.ends_with("hi"));
+                if agent == "agy" { assert!(a.ends_with("-p hi"), "{a}") }
             }
         }
         let r = build_args("codex", "hi", Some("abc"), 1, false, "gpt-x", "high").join(" ");

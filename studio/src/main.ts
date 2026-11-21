@@ -190,7 +190,7 @@ async function run(prompt: string, resume: boolean) {
 function setRunning(on: boolean) {
   running = on;
   $("stop").hidden = !on;
-  $<HTMLButtonElement>("send").disabled = on;
+  $("send").hidden = on; // Stop takes its place
   $<HTMLButtonElement>("new-film").disabled = on;
   $("quick").querySelectorAll("button").forEach((b) => ((b as HTMLButtonElement).disabled = on));
   agentSel.disabled = on;

@@ -152,11 +152,9 @@
             <pre id="gate-doc" class="gate-doc" tabindex="0" hidden></pre>
             <form id="gate-form" class="gate-form">
               <div id="gate-options" class="row"></div>
-              <label class="field">
-                <span>Or ask for changes</span>
-                <textarea id="gate-note" rows="2" placeholder="e.g. Make the intro shorter and use a warmer voice"></textarea>
-              </label>
-              <div class="row">
+              <label class="sr" for="gate-note">Or ask for changes</label>
+              <div class="reply">
+                <textarea id="gate-note" rows="2" placeholder="Or ask for changes, e.g. make the intro shorter"></textarea>
                 <button class="btn" type="submit" id="gate-send">Send changes</button>
               </div>
             </form>
@@ -171,58 +169,60 @@
           </section>
 
           <div class="work">
-            <section class="log-pane" aria-labelledby="log-h">
+            <!-- two columns share three rows (head, body, foot) via subgrid, so edges line up -->
+            <section class="pane" aria-labelledby="log-h">
               <div class="pane-head">
                 <h3 id="log-h">Agent output</h3>
+                <span id="run-state" class="run-state" role="status"></span>
                 <div class="chips" role="group" aria-label="Show">
                   <button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>
                   <button type="button" class="chip" data-filter="text" aria-pressed="false">Messages</button>
                   <button type="button" class="chip" data-filter="tool" aria-pressed="false">Actions</button>
+                  <button type="button" class="chip" id="copy-log">Copy</button>
                 </div>
-                <button type="button" class="link" id="copy-log">Copy</button>
               </div>
-              <div class="runbar">
-                <span id="run-state" class="run-state" role="status"></span>
+              <div class="pane-body">
+                <div id="log" class="log" role="log" aria-live="polite" data-filter="all">
+                  <p class="empty-log">Nothing yet. Start a film or send a message, and the agent's work shows up here.</p>
+                </div>
                 <span id="usage" class="usage" title="Tokens used by the agent in this app, for this film"></span>
               </div>
-              <div id="log" class="log" role="log" aria-live="polite" data-filter="all">
-                <p class="empty-log">Nothing yet. Start a film or send a message, and the agent's work shows up here.</p>
-              </div>
-              <form id="reply-form" class="reply">
+              <form id="reply-form" class="pane-foot reply">
                 <label class="sr" for="reply">Message to the agent</label>
-                <textarea id="reply" rows="2" placeholder="Approve the storyboard, answer a question, or ask for a change (Ctrl+Enter sends)"></textarea>
+                <textarea id="reply" rows="2" placeholder="Answer, approve or ask for a change (Ctrl+Enter sends)"></textarea>
                 <button id="send" class="btn primary" type="submit">Send</button>
                 <button id="stop" class="btn danger" type="button" hidden>Stop agent</button>
+                <div class="quick" id="quick" aria-label="Quick replies">
+                  <button type="button" class="chip" data-say="Approved. Go on to the next stage.">Approve</button>
+                  <button type="button" class="chip" data-say="Continue from where you stopped.">Continue</button>
+                  <button type="button" class="chip" data-say="Give me a two-line status: what is done, what is next, anything blocking.">Status?</button>
+                </div>
               </form>
-              <div class="quick" id="quick" aria-label="Quick replies">
-                <button type="button" class="chip" data-say="Approved. Go on to the next stage.">Approve</button>
-                <button type="button" class="chip" data-say="Continue from where you stopped.">Continue</button>
-                <button type="button" class="chip" data-say="Give me a two-line status: what is done, what is next, anything blocking.">Status?</button>
-              </div>
             </section>
 
-            <section class="right-pane">
-              <div class="tabs" role="tablist" aria-label="Film details">
+            <section class="pane">
+              <div class="pane-head tabs" role="tablist" aria-label="Film details">
                 <button role="tab" id="tab-film" aria-controls="panel-film" aria-selected="true">Film</button>
                 <button role="tab" id="tab-scenes" aria-controls="panel-scenes" aria-selected="false" tabindex="-1">Scenes <span id="scene-count" class="count"></span></button>
                 <button role="tab" id="tab-script" aria-controls="panel-script" aria-selected="false" tabindex="-1">Script <span id="line-count" class="count"></span></button>
               </div>
-
-              <div role="tabpanel" id="panel-film" aria-labelledby="tab-film" class="panel">
-                <div id="player" class="player">
-                  <p class="empty">The film appears here after it is assembled.</p>
+              <div class="pane-body">
+                <div role="tabpanel" id="panel-film" aria-labelledby="tab-film" class="panel">
+                  <div id="player" class="player">
+                    <p class="empty">The film appears here after it is assembled.</p>
+                  </div>
+                  <p id="playing" class="help"></p>
                 </div>
-                <p id="playing" class="help"></p>
-                <div class="row">
-                  <button id="open-video" class="btn" type="button" disabled>Open in player</button>
-                  <button id="open-folder" class="btn" type="button">Open folder</button>
+                <div role="tabpanel" id="panel-scenes" aria-labelledby="tab-scenes" class="panel" hidden>
+                  <ol id="scenes" class="scenes"></ol>
+                </div>
+                <div role="tabpanel" id="panel-script" aria-labelledby="tab-script" class="panel" hidden>
+                  <ol id="script" class="script"></ol>
                 </div>
               </div>
-              <div role="tabpanel" id="panel-scenes" aria-labelledby="tab-scenes" class="panel" hidden>
-                <ol id="scenes" class="scenes"></ol>
-              </div>
-              <div role="tabpanel" id="panel-script" aria-labelledby="tab-script" class="panel" hidden>
-                <ol id="script" class="script"></ol>
+              <div class="pane-foot actions">
+                <button id="open-video" class="btn" type="button" disabled>Open in player</button>
+                <button id="open-folder" class="btn" type="button">Open folder</button>
               </div>
             </section>
           </div>
