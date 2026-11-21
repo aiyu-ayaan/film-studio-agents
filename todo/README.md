@@ -5,7 +5,7 @@ Every video: Reel format, 9:16, 1080x1920, 30 fps, about 45 s, karaoke captions.
 
 | # | Video | File | Score | Status |
 |---|---|---|---|---|
-| 1 | Mystery File 1: The Lighthouse (Flannan Isles, 1900) | `01-mystery-flannan-isles.md` | 66.5 FIX | idea, script ready |
+| 1 | Mystery File 1: The Lighthouse (Flannan Isles, 1900) | `01-mystery-flannan-isles.md` | 70.0 FIX | MADE 2026-11-21 (projects/2026-11-21-mystery-flannan-isles/renders/POST.md), not posted |
 | 2 | Mystery File 2: The Tent (Dyatlov Pass, 1959) | `02-mystery-dyatlov-pass.md` | 67.0 FIX | idea, script ready |
 | 3 | Mystery File 3: The Signal (Wow! signal, 1977) | `03-mystery-wow-signal.md` | 68.0 FIX | idea, script ready |
 | 4 | WW2 in Dots | `projects/2026-11-21-ww2-in-dots/` | 70.0 FIX | on hold: script and storyboard waiting for your approval (G1) |
